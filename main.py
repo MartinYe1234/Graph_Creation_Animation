@@ -1,76 +1,33 @@
 import networkx as nx
 import matplotlib.pyplot as plt
-from random import randint
+from random import randint, gauss
 from math import sin, cos, pi
-fig = plt.figure()
-plt.rcParams['figure.figsize'] = (15,15)
 
 """Create networkx graph to visualise"""
 g = nx.Graph()
+n= 10
+p = {i: (gauss(0, 0.1), gauss(0,0.1)) for i in range(n)}
+G = nx.random_geometric_graph(n,0.2,pos=p)
+position = nx.get_node_attributes(G, 'pos')
+edges = G.edges
+nodes = G.nodes
+adj_list = {}
+for node in nodes:
+	adj_list[node] = []
+for edge in edges:
+	node = edge[0]
+	connected_node = edge[1]
+	adj_list[node].append(connected_node)
+	adj_list[connected_node].append(node)
 
-N = 0
-E = 0
-nodes = []
-edges = []
-labels = []
-
-graph = [[]]
-
-def create_graph(n=2, e=1):
-	global N, E, graph
-	"""Function that generates a graph with n nodes that are
-	randomly connected to at least one other node using e distinct edges.
-
-	Parameters
-	----------
-	n : int
-		number of nodes in the graph, optional
-		(default = 2)
-	e : int
-		number of bi-directional edges in the graph, optional
-		(default = 1)
-	"""
-	N = n
-	E = e
-
-	nodes = []
-	edges = []
-
-	# Constructs an adjacency matrix
-	graph = [[0 for i in range(n)] for j in range(n)]
-
-	# add nodes to graph
-	for i in range(n):
-		nodes.append(i)
-
-	# add edges - connect random unique pairs of vertices
-	while e > 0:
-		i = randint(0, N-1)
-		j = randint(0, N-1)
-		if graph[i][j] == 0 and graph[j][i] == 0 and i != j:
-			edges.append((i, j))
-			graph[i][j] = 1
-			graph[j][i] = 1
-			e -= 1
-	print(graph)
-	#used for networkx
-	g.add_nodes_from(nodes)
-	g.add_edges_from(edges)
-	print("edges:", edges)
-
-"""Visualize graphs using networkx graphs"""
-
-position = {}
-
-create_graph(10,15)
+print(adj_list)
+node_col = 'blue'
+plt.figure(figsize=(16, 9))
+nx.draw_networkx_edges(G, position, alpha=0.5)
+nx.draw_networkx_nodes(G, position, node_size=110,node_color=node_col)
+nx.draw_networkx_labels(G,position, font_color='white', font_size=10)
 
 
-#position nodes in a circle
-for node in g.nodes():
-	x_pos = cos(node*(2*pi/(max(g.nodes())+1)))
-	y_pos = sin(node*(2*pi/(max(g.nodes())+1)))
-	position[node] = (x_pos, y_pos)
+plt.show()
 
-graph1 = nx.draw(g, position , with_labels = True, width = 2, node_size = 500, font_size = 12)
 
-plt.show(graph1)
