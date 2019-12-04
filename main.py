@@ -1,17 +1,20 @@
 import networkx as nx
 import matplotlib.pyplot as plt
-from random import randint, gauss
-from math import sin, cos, pi
+import matplotlib.animation as mpa
+from random import gauss
+import numpy as np
 
+np.random.seed(0)
 """Create networkX graph to visualise"""
+# animation is based off of the concept from:
+# https://stackoverflow.com/questions/43646550/how-to-use-an-update-function-to-animate-a-networkx-graph-in-matplotlib-2-0-0?rq=1
 
 # number of nodes
 n = 10
 # generate positions of nodes
-p = {i: (gauss(0, 0.12), gauss(0, 0.12)) for i in range(n)}
-G = nx.random_geometric_graph(n, 0.165, pos=p)
+p = {i: (np.random.normal(0, 0.12), np.random.normal(0, 0.12)) for i in range(n)}
+G = nx.random_geometric_graph(n, 0.195, pos=p)
 position = nx.get_node_attributes(G, 'pos')
-print(position)
 edges = G.edges
 nodes = G.nodes
 # labels for edge weights
@@ -41,33 +44,50 @@ print("adj list:", adj_list)
 
 def dijsktra(adjacency_list, target, start):
     """
-
     Parameters
     ----------
     adjacency_list : dict
+        contains list of nodes adjacent to a certain node which is the key, each node has a weight attached to it
     target : int
+        target node
     start : int
+        starting node
 
     Returns
     -------
-
     """
-    # keep track of unvisited nodes
-    not_visited = [node for node in nodes]
     # begin by initialising all distances from start node as being infinity
     distances = {}
-    for node in not_visited:
+    for node in nodes:
         if node != start:
             distances[node] = float('inf')
         else:
             distances[node] = 0
+    queue = []
+    # while all nodes aren't visited
+    while len(queue) > 0:
+        # find node with smallest distance from start
+        current_node, current_distance = queue[0]
 
 
-node_col = 'blue'
-plt.figure(figsize=(14, 8))
-nx.draw_networkx_edges(G, position, alpha=0.5)
-nx.draw_networkx_edge_labels(G, pos=position, edge_labels=edge_weights_labels, font_size=7, bbox=dict(alpha=0))
-nx.draw_networkx_nodes(G, position, node_size=150, node_color=node_col)
-nx.draw_networkx_labels(G, position, font_color='white', font_size=11)
-plt.tight_layout()
+"""
+Animation created using matplotlib animation function
+"""
+
+
+def update(itr):
+    plt.clf()
+    node_col = 'green'
+    if itr%2 == 0:
+        node_col = 'red'
+    nx.draw_networkx_edges(G, position, alpha=0.5)
+    nx.draw_networkx_nodes(G, position, node_size=250, node_color=node_col)
+    plt.tight_layout()
+
+
+
+
+fig = plt.figure(figsize=(14, 8))
+
+ani = mpa.FuncAnimation(fig, update, frames= 6, interval= 200,repeat=True)
 plt.show()
