@@ -16,9 +16,10 @@ position = nx.get_node_attributes(G, 'pos')
 edges = G.edges
 nodes = G.nodes
 # labels for edge weights
-edge_weights_labels = {}
+edge_weights_labels = []
 # create adjacency list
 adj_list = {}
+
 # fill adjacency list
 for node in nodes:
     adj_list[node] = []
@@ -34,7 +35,7 @@ for edge in edges:
     adj_list[connected_node].append([node, weight])
     # fill edge_weight_labels
     if edge not in edge_weights_labels:
-        edge_weights_labels[edge] = weight
+        edge_weights_labels.append([edge[0], edge[1], weight])
 
 print("edge weights:", edge_weights_labels)
 print("adj list:", adj_list)
