@@ -1,9 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.animation as mpa
-from random import gauss
 import numpy as np
-
 np.random.seed(75)
 """Create networkX graph to visualise"""
 # animation is based off of the concept from:
@@ -67,12 +65,13 @@ def bfs(graph, start):
     order_visited = []
     # while there is something in the queue
     while queue:
+        current_node = queue[0]
         # for each adjacent node to the current node
-        for neighbour in graph[queue[0]]:
+        for neighbour in graph[current_node]:
             adjacent_node = neighbour[0]
             # if the vertex has not been visited yet
             if bfs_visited[adjacent_node] == 0:
-                order_visited.append(adjacent_node)
+                order_visited.append((current_node, adjacent_node))
                 # add adjacent (neighbour) node to queue
                 queue.append(adjacent_node)
                 # mark as visited
@@ -90,21 +89,25 @@ def update(itr):
     plt.clf()
     # bfs
     node_col = 'blue'
-    edge_col = 'black'
-    # selected edges
-    targeted_edges = []
+
     targeted_nodes = []
-    already_visited = []
 
     order = bfs(adj_list, 0)
 
-    targeted_nodes.append(order[itr % len(order)])
-    already_visited = order[:itr % len(order)]
+    targeted_index = itr % len(order)
+    targeted_edges = [order[targeted_index]]
+    targeted_nodes.append(order[targeted_index][1])
+    already_visited_nodes = [0]
+    already_visited_nodes.extend(item[1] for item in order[:targeted_index])
+
+    already_visited_edges = order[:targeted_index]
 
     nx.draw_networkx_edges(G, position, width=2, alpha=0.5)
-    nx.draw_networkx_edges(G, position, edgelist=targeted_edges, width=4, edge_color=edge_col, alpha=1)
+    nx.draw_networkx_edges(G, position, edgelist=targeted_edges, width=4, edge_color='red', alpha=1)
+    nx.draw_networkx_edges(G, position, edgelist=already_visited_edges, width=4, edge_color='orange', alpha=1)
+
     nx.draw_networkx_nodes(G, position, node_size=250, node_color=node_col)
-    nx.draw_networkx_nodes(G, position, nodelist=already_visited, node_size=250, node_color='orange')
+    nx.draw_networkx_nodes(G, position, nodelist=already_visited_nodes, node_size=250, node_color='orange')
     nx.draw_networkx_nodes(G, position, nodelist=targeted_nodes, node_size=250, node_color='red')
     nx.draw_networkx_labels(G, position)
     plt.tight_layout()
@@ -112,4 +115,6 @@ def update(itr):
 
 fig, ax = plt.subplots(figsize=(14, 7))
 ani = mpa.FuncAnimation(fig, update, interval=300, repeat=True)
+
 plt.show()
+
