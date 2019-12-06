@@ -4,7 +4,7 @@ import matplotlib.animation as mpa
 from random import gauss
 import numpy as np
 
-np.random.seed(0)
+np.random.seed(7)
 """Create networkX graph to visualise"""
 # animation is based off of the concept from:
 # https://stackoverflow.com/questions/43646550/how-to-use-an-update-function-to-animate-a-networkx-graph-in-matplotlib-2-0-0?rq=1
@@ -13,7 +13,7 @@ np.random.seed(0)
 n = 10
 # generate positions of nodes
 p = {i: (np.random.normal(0, 0.12), np.random.normal(0, 0.12)) for i in range(n)}
-G = nx.random_geometric_graph(n, 0.195, pos=p)
+G = nx.random_geometric_graph(n, 0.172, pos=p)
 position = nx.get_node_attributes(G, 'pos')
 edges = G.edges
 nodes = G.nodes
@@ -42,32 +42,43 @@ print("edge weights:", edge_weights_labels)
 print("adj list:", adj_list)
 
 
-def dijsktra(adjacency_list, target, start):
+def bfs(graph, start):
     """
+    Runs bfs on a graph with the purpose of visualising it
+
     Parameters
     ----------
-    adjacency_list : dict
-        contains list of nodes adjacent to a certain node which is the key, each node has a weight attached to it
-    target : int
-        target node
+    graph : dict
+        Dictionary with nodes as keys and values as the adjacent nodes and weights as values
     start : int
-        starting node
+        Starting node
 
     Returns
     -------
+    order_visited : list
+        list containing order of nodes visited
     """
-    # begin by initialising all distances from start node as being infinity
-    distances = {}
-    for node in nodes:
-        if node != start:
-            distances[node] = float('inf')
-        else:
-            distances[node] = 0
     queue = []
-    # while all nodes aren't visited
-    while len(queue) > 0:
-        # find node with smallest distance from start
-        current_node, current_distance = queue[0]
+    bfs_visited = [0 for i in range(len(adj_list.keys()))]
+    queue.append(start)
+    # mark as visited
+    bfs_visited[start] = 1
+    # store order of visited nodes
+    order_visited = []
+    # while there is something in the queue
+    while queue:
+        # for each adjacent node to the current node
+        for neighbour in graph[queue[0]]:
+            adjacent_node = neighbour[0]
+            # if the vertex has not been visited yet
+            if bfs_visited[adjacent_node] == 0:
+                order_visited.append(adjacent_node)
+                # add adjacent (neighbour) node to queue
+                queue.append(adjacent_node)
+                # mark as visited
+                bfs_visited[adjacent_node] = 1
+        queue.pop(0)
+    return order_visited
 
 
 """
@@ -77,17 +88,25 @@ Animation created using matplotlib animation function
 
 def update(itr):
     plt.clf()
-    node_col = 'green'
-    if itr%2 == 0:
-        node_col = 'red'
-    nx.draw_networkx_edges(G, position, alpha=0.5)
+    # bfs
+    node_col = 'blue'
+    edge_col = 'black'
+    # selected edges
+    targeted_edges = []
+    targeted_nodes = []
+
+    order = bfs(adj_list, 0)
+
+    targeted_nodes.append(order[itr%len(order)])
+
+    nx.draw_networkx_edges(G, position, width=2, alpha=0.5)
+    nx.draw_networkx_edges(G, position, edgelist=targeted_edges, width=4, edge_color=edge_col, alpha=1)
     nx.draw_networkx_nodes(G, position, node_size=250, node_color=node_col)
+    nx.draw_networkx_nodes(G, position, nodelist=targeted_nodes, node_size=2500, node_color=node_col)
+    nx.draw_networkx_labels(G, position)
     plt.tight_layout()
 
 
-
-
-fig = plt.figure(figsize=(14, 8))
-
-ani = mpa.FuncAnimation(fig, update, frames= 6, interval= 200,repeat=True)
+fig, ax = plt.subplots(figsize=(14, 7))
+ani = mpa.FuncAnimation(fig, update, interval=300, repeat=True)
 plt.show()
