@@ -4,7 +4,7 @@ import matplotlib.animation as mpa
 from random import gauss
 import numpy as np
 
-np.random.seed(7)
+np.random.seed(75)
 """Create networkX graph to visualise"""
 # animation is based off of the concept from:
 # https://stackoverflow.com/questions/43646550/how-to-use-an-update-function-to-animate-a-networkx-graph-in-matplotlib-2-0-0?rq=1
@@ -94,15 +94,18 @@ def update(itr):
     # selected edges
     targeted_edges = []
     targeted_nodes = []
+    already_visited = []
 
     order = bfs(adj_list, 0)
 
-    targeted_nodes.append(order[itr%len(order)])
+    targeted_nodes.append(order[itr % len(order)])
+    already_visited = order[:itr % len(order)]
 
     nx.draw_networkx_edges(G, position, width=2, alpha=0.5)
     nx.draw_networkx_edges(G, position, edgelist=targeted_edges, width=4, edge_color=edge_col, alpha=1)
     nx.draw_networkx_nodes(G, position, node_size=250, node_color=node_col)
-    nx.draw_networkx_nodes(G, position, nodelist=targeted_nodes, node_size=2500, node_color=node_col)
+    nx.draw_networkx_nodes(G, position, nodelist=already_visited, node_size=250, node_color='orange')
+    nx.draw_networkx_nodes(G, position, nodelist=targeted_nodes, node_size=250, node_color='red')
     nx.draw_networkx_labels(G, position)
     plt.tight_layout()
 
