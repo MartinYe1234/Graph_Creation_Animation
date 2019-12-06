@@ -2,16 +2,18 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.animation as mpa
 import numpy as np
-np.random.seed(75)
+# 75 looks nice
+np.random.seed(7)
 """Create networkX graph to visualise"""
 # animation is based off of the concept from:
 # https://stackoverflow.com/questions/43646550/how-to-use-an-update-function-to-animate-a-networkx-graph-in-matplotlib-2-0-0?rq=1
 
 # number of nodes
-n = 10
+n = 20
 # generate positions of nodes
 p = {i: (np.random.normal(0, 0.12), np.random.normal(0, 0.12)) for i in range(n)}
 G = nx.random_geometric_graph(n, 0.172, pos=p)
+# get positions of each node
 position = nx.get_node_attributes(G, 'pos')
 edges = G.edges
 nodes = G.nodes
@@ -81,12 +83,52 @@ def bfs(graph, start):
     return order_visited
 
 
+def kruskals(G, N):
+    root = list(range(N))
+    steps = []
+    added = []
+    edges = edge_weights_labels
+    edges.sort(key=lambda x: x[2])
+
+    def find(x):
+        if root[x] == x:
+            return x
+
+        root[x] = find(root[x])
+        return root[x]
+
+    def join(a, b):
+        root[find(a)] = root[find(b)]
+
+    order_vis = []
+
+    for i in range(len(edges)):
+        added = False
+        a = edges[i][0]
+        b = edges[i][1]
+        wt = edges[i][2]
+
+        if find(a) != find(b):
+            join(a, b)
+            added = True
+
+        order_vis.append([edges[i], added])
+    return order_vis
+
+
 """
 Animation created using matplotlib animation function
 """
 
 
-def update(itr):
+def update_bfs(itr):
+    """
+    For BFS
+    Parameters
+    ----------
+    itr : int
+        An iterable
+    """
     plt.clf()
     # bfs
     node_col = 'blue'
@@ -110,12 +152,43 @@ def update(itr):
     nx.draw_networkx_nodes(G, position, node_size=250, node_color=node_col)
     nx.draw_networkx_nodes(G, position, nodelist=already_visited_nodes, node_size=250, node_color='orange')
     nx.draw_networkx_nodes(G, position, nodelist=targeted_nodes, node_size=250, node_color='red')
+    plt.tight_layout()
+
+
+def update_mst(itr):
+    """
+    Meant to visualise kruskals
+    Parameters
+    ----------
+    itr : int
+        iterable
+
+    """
+    plt.clf()
+
+    order = kruskals(edge_weights_labels, n)
+
+    targeted_index = itr % len(order)
+    current_edge = [(order[targeted_index][0][0], order[targeted_index][0][1])]
+    show = order[targeted_index][1]
+    current_node = []
+    already_visited_nodes = []
+    already_visited_edges = [tuple(edge[0][:2]) for edge in order[:targeted_index] if edge[1]]
+    print(already_visited_edges)
+
+    # draw
+    nx.draw_networkx_edges(G, position, width=2, alpha=0.5)
+    nx.draw_networkx_edges(G, position, edgelist=already_visited_edges, width=4, edge_color='red', alpha=1)
+    nx.draw_networkx_edges(G, position, edgelist=current_edge, width=4, edge_color='orange', alpha=1)
+
+    nx.draw_networkx_nodes(G, position, node_size=250, node_color='blue')
+    nx.draw_networkx_nodes(G, position, nodelist=already_visited_nodes, node_size=250, node_color='orange')
     nx.draw_networkx_labels(G, position)
     plt.tight_layout()
 
 
 fig, ax = plt.subplots(figsize=(14, 7))
-ani = mpa.FuncAnimation(fig, update, interval=300, repeat=True)
+# ani_bfs = mpa.FuncAnimation(fig, update_bfs, interval=300, repeat=True)
+ani_mst = mpa.FuncAnimation(fig, update_mst, interval=300, repeat=True)
 
 plt.show()
-
