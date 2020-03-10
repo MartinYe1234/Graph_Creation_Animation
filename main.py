@@ -2,6 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.animation as mpa
 import numpy as np
+
 # 75 looks nice
 np.random.seed(7)
 """Create networkX graph to visualise"""
@@ -59,9 +60,9 @@ def bfs(graph, start):
     order_visited : list
         list containing order of nodes visited
     """
-    queue = []
-    bfs_visited = [0 for i in range(len(adj_list.keys()))]
-    queue.append(start)
+    print(graph.keys())
+    queue = [start]
+    bfs_visited = [0 for i in range(len(graph.keys()))]
     # mark as visited
     bfs_visited[start] = 1
     # store order of visited nodes
@@ -80,6 +81,29 @@ def bfs(graph, start):
                 # mark as visited
                 bfs_visited[adjacent_node] = 1
         queue.pop(0)
+    return order_visited
+
+
+def dfs(graph, current):
+    """
+    Runs dfs on a graph with the purpose of visualising it
+
+    Parameters
+    ----------
+    graph : dict
+        Dictionary with nodes as keys and values as the adjacent nodes and weights as values
+    current : int
+        Current node
+    """
+    stack = []
+    dfs_visited = [0 for i in range(len(graph.keys()))]
+    order_visited = []
+    current = start
+    dfs_visited[adjacent] = 1
+    for adjacent in graph[current][0]:
+        if dfs_visited[current] == 0:
+            order_visited.append((current, adjacent))
+            dfs(adj_list, adjacent)
     return order_visited
 
 
@@ -162,7 +186,6 @@ def update_mst(itr):
     ----------
     itr : int
         iterable
-
     """
     plt.clf()
 
@@ -189,6 +212,6 @@ def update_mst(itr):
 
 fig, ax = plt.subplots(figsize=(14, 7))
 # ani_bfs = mpa.FuncAnimation(fig, update_bfs, interval=300, repeat=True)
-ani_mst = mpa.FuncAnimation(fig, update_mst, interval=300, repeat=True)
+ani_mst = mpa.FuncAnimation(fig, update_bfs, interval=300, repeat=True)
 
 plt.show()
