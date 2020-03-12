@@ -1,3 +1,3 @@
 Dijkstra Visualizer
 
-Python program using matplotlib.pyplot and networkX in order to visualize Dijkstra's Algorithm on a randomly generated graph.
+Python program using pygame and matplotlib that allows users to create their own graphs and visualise various graph theory algorithms.
