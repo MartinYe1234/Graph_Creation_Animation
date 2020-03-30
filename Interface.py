@@ -1,5 +1,3 @@
-#this is correct version
-
 import sys
 
 import pygame
@@ -32,8 +30,10 @@ class Graph:
         for node in self.graph:
             start = self.graph[node][0][1]  # begin at the node itself
             pydraw.circle(screen, (0, 0, 255), self.graph[node][0][1], 10)  # draw nodes
-            end = (100, 100)  # ends at every node adjacent to it
-            pydraw.line(screen, (30, 144, 255), start, end, 2)  # draw edges
+            for i in range(len(self.graph[node])-1):  # draw edges
+                adjacent = self.graph[node][i+1][0]  # this is the adjacent node
+                end = self.graph[adjacent][0][1]  # this is the position of the adjacent node
+                pydraw.line(screen, (30, 144, 255), start, end, 2)  # draw edge
 
     def get_nodes(self):  # returns nodes of the graph with their positions
         nodes = {}
@@ -75,7 +75,7 @@ my_graph = Graph()
 screen = pydisplay.set_mode((1400, 800))  # display surface for graph creation
 graph_screen = pygame.Rect((120, 0, 1400, 800))
 font = pygame.font.Font(None, 28)  # font to use
-add_node_mode = 1   # differentiate between adding nodes or edges
+add_node_mode = 1  # differentiate between adding nodes or edges
 
 
 class Button(pygame.Rect):
@@ -92,7 +92,7 @@ class Button(pygame.Rect):
         width = button_text.get_width()
         height = button_text.get_height()
         pygame.draw.rect(screen, (255, 255, 255), self)
-        screen.blit(button_text, (self.x-(width-self.width)/2, self.y-(height-self.height)/2))
+        screen.blit(button_text, (self.x - (width - self.width) / 2, self.y - (height - self.height) / 2))
 
     def is_clicked(self, mouse_pos):  # returns whether the button has been selected or not
         global add_node_mode
@@ -125,12 +125,14 @@ def main():
                 for button in buttons:  # check if a button is clicked
                     print(button.is_clicked(event.pos))
 
-        if pymouse.get_pressed()[0]:
+        if pymouse.get_pressed()[0]:  # if the mouse is pressed
             mouse_pos = pymouse.get_pos()
-            if my_graph.not_within_min(mouse_pos) and graph_screen.collidepoint(mouse_pos) and add_node_mode:  # only if node is within graph screen and far enough away
+            # nodes are added if the satisfy the following: within the screen, far enough from other nodes, add_node_mode is true
+            if my_graph.not_within_min(mouse_pos) and graph_screen.collidepoint(mouse_pos) and add_node_mode:
                 my_graph.add_node(node_name, mouse_pos)
                 node_name += 1
                 print(my_graph.get_nodes())
+            # to add edges a node must be selected(primary) and another must be selected(secondary)
 
         for button in buttons:  # draw all buttons
             button.draw()
