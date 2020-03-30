@@ -6,6 +6,8 @@ import pygame.mouse as pymouse
 import pygame.draw as pydraw
 from pygame.locals import *
 
+pygame.init()
+
 
 class Graph:
     def __init__(self):
@@ -14,10 +16,10 @@ class Graph:
     def add_node(self, node, position):
         self.graph[node] = [("pos", position)]
 
-    def add_bi_edge(self, u, v):    # connects nodes u and v and adds a weight based on position
+    def add_bi_edge(self, u, v):  # connects nodes u and v and adds a weight based on position
         x1, y1 = self.graph[u][0][1]
         x2, y2 = self.graph[v][0][1]
-        weight = ((x1-x2)**2+(y1-y2)**2)**0.5
+        weight = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
         self.graph[u].append((v, weight))
         self.graph[v].append((u, weight))
 
@@ -26,11 +28,14 @@ class Graph:
 
     def draw(self):
         for node in self.graph:
-            pydraw.circle(graph_screen, (0, 0, 255), self.graph[node][0][1], 10)
+            start = self.graph[node][0][1]  # begin at the node itself
+            pydraw.circle(screen, (0, 0, 255), self.graph[node][0][1], 10)  # draw nodes
+            end = (100, 100)  # ends at every node adjacent to it
+            pydraw.line(screen, (30, 144, 255), start, end, 2)  # draw edges
 
     def get_nodes(self):  # returns nodes of the graph with their positions
         nodes = {}
-        for node in self.graph.keys():
+        for node in self.graph:
             if node not in nodes.keys():
                 nodes[node] = []
             nodes[node].append(self.graph[node][0])
@@ -51,7 +56,7 @@ class Graph:
         Returns
         -------
         not_within : boolean
-            should node be added
+            whether or not the node about to be added is violating US airspace and needs to be shot down
         """
         not_within = True
         min_distance = 20
@@ -63,87 +68,65 @@ class Graph:
                 not_within = False
         return not_within
 
-    def bfs(self, start):
-        """
-        Runs bfs on a graph with the purpose of visualising it
-
-        Parameters
-        ----------
-        start : int
-            Starting node
-
-        Returns
-        -------
-        order_visited : list
-            list containing order of nodes visited
-        """
-        print(self.graph.keys())
-        queue = [start]
-        bfs_visited = [0 for i in range(len(self.graph.keys()))]
-        # mark as visited
-        bfs_visited[start] = 1
-        # store order of visited nodes
-        order_visited = []
-        # while there is something in the queue
-        while queue:
-            current_node = queue[0]
-            # for each adjacent node to the current node
-            for neighbour in self.graph[current_node]:
-                adjacent_node = neighbour[0]
-                # if the vertex has not been visited yet
-                if bfs_visited[adjacent_node] == 0:
-                    order_visited.append((current_node, adjacent_node))
-                    # add adjacent (neighbour) node to queue
-                    queue.append(adjacent_node)
-                    # mark as visited
-                    bfs_visited[adjacent_node] = 1
-            queue.pop(0)
-        return order_visited
-
 
 my_graph = Graph()
-graph_screen = pydisplay.set_mode((1000, 800))    # display surface for graph creation
+screen = pydisplay.set_mode((1400, 800))  # display surface for graph creation
+graph_screen = pygame.Rect((120, 0, 1400, 800))
+font = pygame.font.Font(None, 28)  # font to use
+add_node_mode = 1   # differentiate between adding nodes or edges
 
 
 class Button(pygame.Rect):
 
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, width, height, text):
         self.x = x
         self.y = y
         self.height = height
         self.width = width
+        self.text = text
 
     def draw(self):
-        pygame.draw.rect(graph_screen, (255, 255, 255), self)
+        button_text = font.render(self.text, True, (0, 0, 0))
+        width = button_text.get_width()
+        height = button_text.get_height()
+        pygame.draw.rect(screen, (255, 255, 255), self)
+        screen.blit(button_text, (self.x-(width-self.width)/2, self.y-(height-self.height)/2))
 
     def is_clicked(self, mouse_pos):  # returns whether the button has been selected or not
+        global add_node_mode
         if self.collidepoint(mouse_pos):
+            if self.text == "Add Edge":
+                add_node_mode = 0
+            elif self.text == "Add Node":
+                add_node_mode = 1
             return True
         return False
 
 
-add_node = Button(10, 10, 100, 50)
-add_edge = Button(10, 70, 100,50)
-buttons = [add_node, add_edge]    # list of all buttons
+add_node = Button(10, 10, 100, 50, "Add Node")
+add_edge = Button(10, 70, 100, 50, "Add Edge")
+buttons = [add_node, add_edge]  # list of all buttons
+
 
 def main():
-    pygame.init()
     running = True
     pydisplay.init()
     pydisplay.set_caption("Create your graph")
     # used to name nodes
     node_name = 0
     while running:
+        pygame.draw.rect(screen, (192, 192, 192), graph_screen)  # draw background for graph screen
         for event in pygame.event.get():
             if event.type in (QUIT, KEYDOWN):  # exit screen check
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:  # button click check
                 for button in buttons:  # check if a button is clicked
-                    button.is_clicked(event.pos)
+                    print(button.is_clicked(event.pos))
 
         if pymouse.get_pressed()[0]:
-            if my_graph.not_within_min(pymouse.get_pos()):
-                my_graph.add_node(node_name, pymouse.get_pos())
+            mouse_pos = pymouse.get_pos()
+            if my_graph.not_within_min(mouse_pos) and graph_screen.collidepoint(mouse_pos) and add_node_mode:  # only if node is within graph screen and far enough away
+                my_graph.add_node(node_name, mouse_pos)
                 node_name += 1
                 print(my_graph.get_nodes())
 
