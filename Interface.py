@@ -26,11 +26,11 @@ class Graph:
         self.graph = {}
 
     def add_node(self, node):
-        self.graph[node.name] = [("pos", node.position)]
+        self.graph[node] = []
 
     def add_bi_edge(self, u, v):  # connects nodes u and v and adds a weight based on position
-        x1, y1 = self.graph[u][0][1]
-        x2, y2 = self.graph[v][0][1]
+        x1, y1 = self.graph[u].position
+        x2, y2 = self.graph[v].position
         weight = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
         self.graph[u].append((v, weight))
         self.graph[v].append((u, weight))
@@ -40,19 +40,20 @@ class Graph:
 
     def draw(self):
         for node in self.graph:
-            start = self.graph[node][0][1]  # begin at the node itself
-            pydraw.circle(screen, not_selected_color, self.graph[node][0][1], 10)  # draw nodes
+            start = node.position  # begin at the node itself
+            pydraw.circle(screen, node.colour, start, 10)  # draw nodes
+            """
             for i in range(len(self.graph[node]) - 1):  # draw edges
                 adjacent = self.graph[node][i + 1][0]  # this is the adjacent node
                 end = self.graph[adjacent][0][1]  # this is the position of the adjacent node
-                pydraw.line(screen, (30, 144, 255), start, end, 2)  # draw edge
+                pydraw.line(screen, (30, 144, 255), start, end, 2)  # draw edge"""
 
     def get_nodes(self):  # returns nodes of the graph with their positions
         nodes = {}
         for node in self.graph:
             if node not in nodes.keys():
-                nodes[node] = []
-            nodes[node].append(self.graph[node][0])
+                nodes[node.name] = []
+            nodes[node.name].append(node.position)
         return nodes
 
     def get_edges(self):
@@ -75,8 +76,8 @@ class Graph:
         not_within = True
         min_distance = 20
         x_mpos, y_mpos = mouse_pos[0], mouse_pos[1]
-        for node in self.get_nodes():
-            x_node, y_node = self.get_nodes()[node][0][1]
+        for node in self.graph:
+            x_node, y_node = node.position
             distance = ((x_node - x_mpos) ** 2 + (y_node - y_mpos) ** 2) ** .5
             if distance < min_distance:
                 not_within = False
