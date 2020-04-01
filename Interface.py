@@ -8,13 +8,25 @@ from pygame.locals import *
 
 pygame.init()
 
+"""Globals"""
+not_selected_color = (0, 0, 255)
+selected_color = (255, 0, 0)
+selected_final_color = (0, 255, 0)
+
+
+class Node:
+    def __init__(self, name, colour, position):
+        self.name = name
+        self.colour = colour
+        self.position = position
+
 
 class Graph:
     def __init__(self):
         self.graph = {}
 
-    def add_node(self, node, position):
-        self.graph[node] = [("pos", position)]
+    def add_node(self, node):
+        self.graph[node.name] = [("pos", node.position)]
 
     def add_bi_edge(self, u, v):  # connects nodes u and v and adds a weight based on position
         x1, y1 = self.graph[u][0][1]
@@ -29,9 +41,9 @@ class Graph:
     def draw(self):
         for node in self.graph:
             start = self.graph[node][0][1]  # begin at the node itself
-            pydraw.circle(screen, (0, 0, 255), self.graph[node][0][1], 10)  # draw nodes
-            for i in range(len(self.graph[node])-1):  # draw edges
-                adjacent = self.graph[node][i+1][0]  # this is the adjacent node
+            pydraw.circle(screen, not_selected_color, self.graph[node][0][1], 10)  # draw nodes
+            for i in range(len(self.graph[node]) - 1):  # draw edges
+                adjacent = self.graph[node][i + 1][0]  # this is the adjacent node
                 end = self.graph[adjacent][0][1]  # this is the position of the adjacent node
                 pydraw.line(screen, (30, 144, 255), start, end, 2)  # draw edge
 
@@ -108,6 +120,9 @@ class Button(pygame.Rect):
 add_node = Button(10, 10, 100, 50, "Add Node")
 add_edge = Button(10, 70, 100, 50, "Add Edge")
 buttons = [add_node, add_edge]  # list of all buttons
+# used to add edges
+primary = -1
+secondary = -1
 
 
 def main():
@@ -129,10 +144,13 @@ def main():
             mouse_pos = pymouse.get_pos()
             # nodes are added if the satisfy the following: within the screen, far enough from other nodes, add_node_mode is true
             if my_graph.not_within_min(mouse_pos) and graph_screen.collidepoint(mouse_pos) and add_node_mode:
-                my_graph.add_node(node_name, mouse_pos)
+                new_node = Node(node_name, not_selected_color, mouse_pos)
+                my_graph.add_node(new_node)
                 node_name += 1
                 print(my_graph.get_nodes())
-            # to add edges a node must be selected(primary) and another must be selected(secondary)
+            # to add edges a node must be selected and add edge mode must be on
+            if not my_graph.not_within_min(mouse_pos) and not add_node_mode:
+                pass
 
         for button in buttons:  # draw all buttons
             button.draw()
