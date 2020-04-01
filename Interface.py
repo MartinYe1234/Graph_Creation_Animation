@@ -8,17 +8,34 @@ from pygame.locals import *
 
 pygame.init()
 
-"""Globals"""
+"""Globals
+different possible states a node/ edge could be in:
+final = 2, 
+selected = 1
+not_selected = 0
+"""
 not_selected_color = (0, 0, 255)
 selected_color = (255, 0, 0)
 selected_final_color = (0, 255, 0)
 
 
+
 class Node:
-    def __init__(self, name, colour, position):
+    def __init__(self, name, colour, position, state):
         self.name = name
         self.colour = colour
         self.position = position
+        self.state = state
+
+    def is_selected(self):  # sets node as being selected if conditions are satisfied
+        if not add_node_mode:
+            self.state = 1
+            self.colour = selected_color
+
+    def not_selected(self):
+        if add_node_mode:
+            self.state = 0
+            self.colour = not_selected_color
 
 
 class Graph:
@@ -29,8 +46,8 @@ class Graph:
         self.graph[node] = []
 
     def add_bi_edge(self, u, v):  # connects nodes u and v and adds a weight based on position
-        x1, y1 = self.graph[u].position
-        x2, y2 = self.graph[v].position
+        x1, y1 = u.position
+        x2, y2 = v.position
         weight = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
         self.graph[u].append((v, weight))
         self.graph[v].append((u, weight))
@@ -48,12 +65,17 @@ class Graph:
                 end = self.graph[adjacent][0][1]  # this is the position of the adjacent node
                 pydraw.line(screen, (30, 144, 255), start, end, 2)  # draw edge"""
 
-    def get_nodes(self):  # returns nodes of the graph with their positions
+    def get_graph(self):
+        return self.graph
+
+    def get_nodes(self):  # returns nodes of the graph with their positions as well as neighbours
         nodes = {}
         for node in self.graph:
             if node not in nodes.keys():
-                nodes[node.name] = []
-            nodes[node.name].append(node.position)
+                nodes[node.name] = set()
+            nodes[node.name].add(node.position)
+            for neighbour in self.graph[node]:
+                nodes[node.name].add((neighbour[0].name, neighbour[1]))
         return nodes
 
     def get_edges(self):
@@ -81,6 +103,7 @@ class Graph:
             distance = ((x_node - x_mpos) ** 2 + (y_node - y_mpos) ** 2) ** .5
             if distance < min_distance:
                 not_within = False
+                node.is_selected()  # set node as being selected
         return not_within
 
 
@@ -127,6 +150,7 @@ secondary = -1
 
 
 def main():
+    global primary, secondary
     running = True
     pydisplay.init()
     pydisplay.set_caption("Create your graph")
@@ -145,13 +169,24 @@ def main():
             mouse_pos = pymouse.get_pos()
             # nodes are added if the satisfy the following: within the screen, far enough from other nodes, add_node_mode is true
             if my_graph.not_within_min(mouse_pos) and graph_screen.collidepoint(mouse_pos) and add_node_mode:
-                new_node = Node(node_name, not_selected_color, mouse_pos)
+                new_node = Node(node_name, not_selected_color, mouse_pos, 0)
                 my_graph.add_node(new_node)
                 node_name += 1
                 print(my_graph.get_nodes())
             # to add edges a node must be selected and add edge mode must be on
             if not my_graph.not_within_min(mouse_pos) and not add_node_mode:
-                pass
+                for node in my_graph.get_graph():
+                    if primary == -1 and node.state == 1:  # if a primary node has not been selected
+                        primary = node
+                    elif primary != -1 and node.state == 1:
+                        secondary = node
+                    if primary != -1 and secondary != -1:
+                        print(primary, secondary)
+                        my_graph.add_bi_edge(primary, secondary)
+                        primary = -1
+                        secondary = -1
+
+
 
         for button in buttons:  # draw all buttons
             button.draw()
