@@ -28,14 +28,12 @@ class Node:
         self.state = state
 
     def is_selected(self):  # sets node as being selected if conditions are satisfied
-        if not add_node_mode:
-            self.state = 1
-            self.colour = selected_color
+        self.state = 1
+        self.colour = selected_color
 
     def not_selected(self):
-        if add_node_mode:
-            self.state = 0
-            self.colour = not_selected_color
+        self.state = 0
+        self.colour = not_selected_color
 
 
 class Graph:
@@ -183,9 +181,10 @@ def main():
                     if primary != -1 and secondary != -1:
                         print(primary, secondary)
                         my_graph.add_bi_edge(primary, secondary)
+                        primary.not_selected()
+                        secondary.not_selected()
                         primary = -1
                         secondary = -1
-
 
 
         for button in buttons:  # draw all buttons
