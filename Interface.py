@@ -19,7 +19,6 @@ selected_color = (255, 0, 0)
 selected_final_color = (0, 255, 0)
 
 
-
 class Node:
     def __init__(self, name, colour, position, state):
         self.name = name
@@ -28,6 +27,22 @@ class Node:
         self.state = state
 
     def is_selected(self):  # sets node as being selected if conditions are satisfied
+        self.state = 1
+        self.colour = selected_color
+
+    def not_selected(self):
+        self.state = 0
+        self.colour = not_selected_color
+
+
+class Edge:
+    def __init__(self, name, weight, colour, state):
+        self.name = name
+        self.weight = weight
+        self.colour = colour
+        self.state = state
+
+    def is_selected(self):  # sets edge as being selected if conditions are satisfied
         self.state = 1
         self.colour = selected_color
 
@@ -57,11 +72,16 @@ class Graph:
         for node in self.graph:
             start = node.position  # begin at the node itself
             pydraw.circle(screen, node.colour, start, 10)  # draw nodes
+            # draw edges
+            for adjacent in self.graph[node]:
+                end = adjacent[0].position
+                pydraw.line(screen, adjacent[0].colour, start, end, 2)
+
             """
             for i in range(len(self.graph[node]) - 1):  # draw edges
                 adjacent = self.graph[node][i + 1][0]  # this is the adjacent node
                 end = self.graph[adjacent][0][1]  # this is the position of the adjacent node
-                pydraw.line(screen, (30, 144, 255), start, end, 2)  # draw edge"""
+                  # draw edge"""
 
     def get_graph(self):
         return self.graph
@@ -77,6 +97,9 @@ class Graph:
         return nodes
 
     def get_edges(self):
+        pass
+
+    def get_matplotlib_graph_data(self):
         pass
 
     def not_within_min(self, mouse_pos):
@@ -101,7 +124,8 @@ class Graph:
             distance = ((x_node - x_mpos) ** 2 + (y_node - y_mpos) ** 2) ** .5
             if distance < min_distance:
                 not_within = False
-                node.is_selected()  # set node as being selected
+                if not add_node_mode:
+                    node.is_selected()  # set node as being selected
         return not_within
 
 
@@ -176,21 +200,21 @@ def main():
                 for node in my_graph.get_graph():
                     if primary == -1 and node.state == 1:  # if a primary node has not been selected
                         primary = node
-                    elif primary != -1 and node.state == 1:
+                    elif primary != -1 and node.state == 1 and primary != node:  # cannot make a edge with itself
                         secondary = node
                     if primary != -1 and secondary != -1:
-                        print(primary, secondary)
                         my_graph.add_bi_edge(primary, secondary)
                         primary.not_selected()
                         secondary.not_selected()
                         primary = -1
                         secondary = -1
 
-
         for button in buttons:  # draw all buttons
             button.draw()
         my_graph.draw()
         pydisplay.update()
+        print(my_graph.get_graph())
+
 
 
 main()
