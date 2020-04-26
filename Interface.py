@@ -77,12 +77,6 @@ class Graph:
                 end = adjacent[0].position
                 pydraw.line(screen, adjacent[0].colour, start, end, 2)
 
-            """
-            for i in range(len(self.graph[node]) - 1):  # draw edges
-                adjacent = self.graph[node][i + 1][0]  # this is the adjacent node
-                end = self.graph[adjacent][0][1]  # this is the position of the adjacent node
-                  # draw edge"""
-
     def get_graph(self):
         return self.graph
 
@@ -194,15 +188,15 @@ def main():
                 new_node = Node(node_name, not_selected_color, mouse_pos, 0)
                 my_graph.add_node(new_node)
                 node_name += 1
-                print(my_graph.get_nodes())
             # to add edges a node must be selected and add edge mode must be on
             if not my_graph.not_within_min(mouse_pos) and not add_node_mode:
                 for node in my_graph.get_graph():
-                    if primary == -1 and node.state == 1:  # if a primary node has not been selected
+                    if primary == -1 and node.state == 1:  # if no primary node has been selected
                         primary = node
                     elif primary != -1 and node.state == 1 and primary != node:  # cannot make a edge with itself
                         secondary = node
-                    if primary != -1 and secondary != -1:
+                    if primary != -1 and secondary != -1:  # add the edge and reset primary and secondary
+                        print("runs")
                         my_graph.add_bi_edge(primary, secondary)
                         primary.not_selected()
                         secondary.not_selected()
@@ -213,8 +207,7 @@ def main():
             button.draw()
         my_graph.draw()
         pydisplay.update()
-        print(my_graph.get_graph())
-
+        print(primary, secondary)
 
 
 main()
