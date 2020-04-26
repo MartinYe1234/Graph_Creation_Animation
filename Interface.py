@@ -15,10 +15,13 @@ final = 2,
 selected = 1
 not_selected = 0
 """
+
+button_unselected = (255, 255, 255)
 not_selected_color = (0, 0, 255)
 selected_color = (255, 0, 0)
 selected_final_color = (0, 255, 0)
 selected_algorithm = ""
+
 
 class Node:
     def __init__(self, name, colour, position, state):
@@ -139,6 +142,7 @@ class Graph:
                     node.is_selected()  # set node as being selected
         return not_within
 
+
 my_graph = Graph()
 
 screen = pydisplay.set_mode((1400, 800))  # display surface for graph creation
@@ -149,18 +153,19 @@ add_node_mode = 1  # differentiate between adding nodes or edges
 
 class Button(pygame.Rect):
 
-    def __init__(self, x, y, width, height, text):
+    def __init__(self, x, y, width, height, text, colour):
         self.x = x
         self.y = y
         self.height = height
         self.width = width
         self.text = text
+        self.colour = colour
 
     def draw(self):
         button_text = font.render(self.text, True, (0, 0, 0))
         width = button_text.get_width()
         height = button_text.get_height()
-        pygame.draw.rect(screen, (255, 255, 255), self)
+        pygame.draw.rect(screen, self.colour, self)
         screen.blit(button_text, (self.x - (width - self.width) / 2, self.y - (height - self.height) / 2))
 
     def is_clicked(self, mouse_pos):  # returns whether the button has been selected or not
@@ -174,17 +179,18 @@ class Button(pygame.Rect):
                 positions = my_graph.get_positions()
                 nodes = [node for node in my_graph.get_nodes().keys()]
                 edges = my_graph.get_edges()
-                print("nodes",nodes)
+                print("nodes", nodes)
                 create_networkx_graph(positions, nodes, edges)
-
                 plt.show()
+            self.colour = selected_color
             return True
+        self.colour = button_unselected
         return False
 
 
-add_node = Button(10, 10, 100, 50, "Add Node")
-add_edge = Button(10, 70, 100, 50, "Add Edge")
-run_visual = Button(10,130, 100, 50,"Run")
+add_node = Button(10, 10, 100, 50, "Add Node", button_unselected)
+add_edge = Button(10, 70, 100, 50, "Add Edge", button_unselected)
+run_visual = Button(10, 130, 100, 50, "Run", button_unselected)
 buttons = [add_node, add_edge, run_visual]  # list of all buttons
 # used to add edges
 primary = -1
