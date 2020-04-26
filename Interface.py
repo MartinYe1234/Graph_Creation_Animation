@@ -36,11 +36,16 @@ class Node:
 
 
 class Edge:
-    def __init__(self, name, weight, colour, state):
-        self.name = name
+    def __init__(self, u, v, colour, state):
+        self.u = u
+        self.v = v
         self.weight = weight
         self.colour = colour
         self.state = state
+        x1, y1 = self.u.position
+        x2, y2 = self.v.position
+        self.weight = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+        self.edge = (u, v, weight)
 
     def is_selected(self):  # sets edge as being selected if conditions are satisfied
         self.state = 1
@@ -58,12 +63,10 @@ class Graph:
     def add_node(self, node):
         self.graph[node] = []
 
-    def add_bi_edge(self, u, v):  # connects nodes u and v and adds a weight based on position
-        x1, y1 = u.position
-        x2, y2 = v.position
-        weight = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
-        self.graph[u].append((v, weight))
-        self.graph[v].append((u, weight))
+    def add_bi_edge(self, edge):  # connects nodes u and v and adds a weight based on position
+
+        self.graph[edge.u].append((edge.v, edge.weight))
+        self.graph[edge.u].append((edge.v, edge.weight))
 
     def add_non_bi_edge(self, u, v):
         self.graph[u].append(v)
@@ -90,8 +93,13 @@ class Graph:
                 nodes[node.name].add((neighbour[0].name, neighbour[1]))
         return nodes
 
-    def get_edges(self):
-        pass
+    def get_edges(self):  # returns all edges as tuple like this : (u, v, weight)
+        # (v, u, weight) and (u, v, weight) will not be treated as the same
+        edges = []
+        for node in self.graph:
+            for adjacent in self.graph[node]:
+                edges.append((node.name, adjacent[0].name, adjacent[1]))
+        return edges
 
     def get_matplotlib_graph_data(self):
         pass
@@ -195,6 +203,7 @@ def main():
                         elif primary != -1 and node.state == 1 and primary != node:  # cannot make a edge with itself
                             secondary = node
                         if primary != -1 and secondary != -1:  # add the edge and reset primary and secondary
+
                             my_graph.add_bi_edge(primary, secondary)
                             primary.not_selected()
                             secondary.not_selected()
@@ -205,7 +214,7 @@ def main():
             button.draw()
         my_graph.draw()
         pydisplay.update()
-        print(primary, secondary)
+        print(my_graph.get_edges())
 
 
 main()
