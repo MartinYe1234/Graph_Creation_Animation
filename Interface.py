@@ -5,6 +5,7 @@ import pygame.display as pydisplay
 import pygame.mouse as pymouse
 import pygame.draw as pydraw
 from pygame.locals import *
+from main import *
 
 pygame.init()
 
@@ -17,7 +18,7 @@ not_selected = 0
 not_selected_color = (0, 0, 255)
 selected_color = (255, 0, 0)
 selected_final_color = (0, 255, 0)
-
+selected_algorithm = ""
 
 class Node:
     def __init__(self, name, colour, position, state):
@@ -39,13 +40,18 @@ class Edge:
     def __init__(self, u, v, colour, state):
         self.u = u
         self.v = v
-        self.weight = weight
         self.colour = colour
         self.state = state
         x1, y1 = self.u.position
         x2, y2 = self.v.position
         self.weight = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
-        self.edge = (u, v, weight)
+        self.edge = (u, v, self.weight)
+
+    def get_edge(self):
+        return self.edge
+
+    def get_edge_data(self):
+        return self.u.name, self.v.name, self.weight
 
     def is_selected(self):  # sets edge as being selected if conditions are satisfied
         self.state = 1
@@ -86,9 +92,8 @@ class Graph:
     def get_nodes(self):  # returns nodes of the graph with their positions as well as neighbours
         nodes = {}
         for node in self.graph:
-            if node not in nodes.keys():
+            if node.name not in nodes.keys():
                 nodes[node.name] = set()
-            nodes[node.name].add(node.position)
             for neighbour in self.graph[node]:
                 nodes[node.name].add((neighbour[0].name, neighbour[1]))
         return nodes
@@ -101,8 +106,12 @@ class Graph:
                 edges.append((node.name, adjacent[0].name, adjacent[1]))
         return edges
 
-    def get_matplotlib_graph_data(self):
-        pass
+    def get_positions(self):  # returns dictionary of each nodes position
+        pos = {}
+        for node in self.graph:
+            if node.name not in pos.keys():
+                pos[node.name] = node.position
+        return pos
 
     def not_within_min(self, mouse_pos):
         """
@@ -130,8 +139,8 @@ class Graph:
                     node.is_selected()  # set node as being selected
         return not_within
 
-
 my_graph = Graph()
+
 screen = pydisplay.set_mode((1400, 800))  # display surface for graph creation
 graph_screen = pygame.Rect((120, 0, 1400, 800))
 font = pygame.font.Font(None, 28)  # font to use
@@ -161,20 +170,29 @@ class Button(pygame.Rect):
                 add_node_mode = 0
             elif self.text == "Add Node":
                 add_node_mode = 1
+            elif self.text == "Run":
+                positions = my_graph.get_positions()
+                nodes = [node for node in my_graph.get_nodes().keys()]
+                edges = my_graph.get_edges()
+                print("nodes",nodes)
+                create_networkx_graph(positions, nodes, edges)
+
+                plt.show()
             return True
         return False
 
 
 add_node = Button(10, 10, 100, 50, "Add Node")
 add_edge = Button(10, 70, 100, 50, "Add Edge")
-buttons = [add_node, add_edge]  # list of all buttons
+run_visual = Button(10,130, 100, 50,"Run")
+buttons = [add_node, add_edge, run_visual]  # list of all buttons
 # used to add edges
 primary = -1
 secondary = -1
 
 
 def main():
-    global primary, secondary
+    global primary, secondary, node_name
     running = True
     pydisplay.init()
     pydisplay.set_caption("Create your graph")
@@ -203,8 +221,10 @@ def main():
                         elif primary != -1 and node.state == 1 and primary != node:  # cannot make a edge with itself
                             secondary = node
                         if primary != -1 and secondary != -1:  # add the edge and reset primary and secondary
+                            new_edge = Edge(primary, secondary, not_selected_color, 0)
+                            if new_edge.get_edge_data() not in my_graph.get_edges():  # no duplicate edges allowed
+                                my_graph.add_bi_edge(new_edge)
 
-                            my_graph.add_bi_edge(primary, secondary)
                             primary.not_selected()
                             secondary.not_selected()
                             primary = -1
@@ -214,7 +234,6 @@ def main():
             button.draw()
         my_graph.draw()
         pydisplay.update()
-        print(my_graph.get_edges())
 
 
 main()

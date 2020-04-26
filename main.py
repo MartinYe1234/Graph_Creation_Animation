@@ -1,3 +1,4 @@
+from Interface import *
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.animation as mpa
@@ -6,42 +7,49 @@ import numpy as np
 # 75 looks nice
 np.random.seed(7)
 """Create networkX graph to visualise"""
+
+
 # animation is based off of the concept from:
 # https://stackoverflow.com/questions/43646550/how-to-use-an-update-function-to-animate-a-networkx-graph-in-matplotlib-2-0-0?rq=1
+def create_networkx_graph(p, nodes, edges):
+    global adj_list, G, position
 
-# number of nodes
-n = 20
-# generate positions of nodes
-p = {i: (np.random.normal(0, 0.12), np.random.normal(0, 0.12)) for i in range(n)}
-G = nx.random_geometric_graph(n, 0.172, pos=p)
-# get positions of each node
-position = nx.get_node_attributes(G, 'pos')
-edges = G.edges
-nodes = G.nodes
-# labels for edge weights
-edge_weights_labels = []
-# create adjacency list
-adj_list = {}
+    # generate positions of nodes
+    # p = {i: (np.random.normal(0, 0.12), np.random.normal(0, 0.12)) for i in range(n)}
+    # G = nx.random_geometric_graph(n, 0.172, pos=p)
+    G = nx.Graph()
+    G.add_nodes_from(nodes)
+    # set position of every node
+    nx.set_node_attributes(G, p, 'pos')
+    position = nx.get_node_attributes(G, 'pos')
+    print("position of nodes", position)
+    # add all edges
+    G.add_weighted_edges_from(edges)
 
-# fill adjacency list
-for node in nodes:
-    adj_list[node] = []
-for edge in edges:
-    node = edge[0]
-    connected_node = edge[1]
-    # generate weights by calculating distance between the two nodes
-    x1, y1 = position[node][0], position[node][1]
-    x2, y2 = position[connected_node][0], position[connected_node][1]
-    # the weight is the distance between the two connected nodes multiplied by 100 and rounded to 1 decimal place
-    weight = round((((x1 - x2) ** 2 + (y1 - y2) ** 2) ** .5) * 100, 1)
-    adj_list[node].append([connected_node, weight])
-    adj_list[connected_node].append([node, weight])
-    # fill edge_weight_labels
-    if edge not in edge_weights_labels:
-        edge_weights_labels.append([edge[0], edge[1], weight])
+    # labels for edge weights
+    edge_weights_labels = []
+    # create adjacency list
+    adj_list = {}
 
-print("edge weights:", edge_weights_labels)
-print("adj list:", adj_list)
+    # fill adjacency list
+    for node in nodes:
+        adj_list[node] = []
+    for edge in edges:
+        node = edge[0]
+        connected_node = edge[1]
+        # generate weights by calculating distance between the two nodes
+        x1, y1 = position[node][0], position[node][1]
+        x2, y2 = position[connected_node][0], position[connected_node][1]
+        # the weight is the distance between the two connected nodes multiplied by 100 and rounded to 1 decimal place
+        weight = round((((x1 - x2) ** 2 + (y1 - y2) ** 2) ** .5) * 100, 1)
+        adj_list[node].append([connected_node, weight])
+        adj_list[connected_node].append([node, weight])
+        # fill edge_weight_labels
+        if edge not in edge_weights_labels:
+            edge_weights_labels.append([edge[0], edge[1], weight])
+
+    print("edge weights:", edge_weights_labels)
+    print("adj list:", adj_list)
 
 
 def bfs(graph, start):
@@ -213,5 +221,3 @@ def update_mst(itr):
 fig, ax = plt.subplots(figsize=(14, 7))
 # ani_bfs = mpa.FuncAnimation(fig, update_bfs, interval=300, repeat=True)
 ani_mst = mpa.FuncAnimation(fig, update_bfs, interval=300, repeat=True)
-
-plt.show()
