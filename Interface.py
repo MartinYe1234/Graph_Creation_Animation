@@ -179,29 +179,27 @@ def main():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:  # button click check
                 for button in buttons:  # check if a button is clicked
-                    print(button.is_clicked(event.pos))
+                    button.is_clicked(event.pos)
 
-        if pymouse.get_pressed()[0]:  # if the mouse is pressed
-            mouse_pos = pymouse.get_pos()
-            # nodes are added if the satisfy the following: within the screen, far enough from other nodes, add_node_mode is true
-            if my_graph.not_within_min(mouse_pos) and graph_screen.collidepoint(mouse_pos) and add_node_mode:
-                new_node = Node(node_name, not_selected_color, mouse_pos, 0)
-                my_graph.add_node(new_node)
-                node_name += 1
-            # to add edges a node must be selected and add edge mode must be on
-            if not my_graph.not_within_min(mouse_pos) and not add_node_mode:
-                for node in my_graph.get_graph():
-                    if primary == -1 and node.state == 1:  # if no primary node has been selected
-                        primary = node
-                    elif primary != -1 and node.state == 1 and primary != node:  # cannot make a edge with itself
-                        secondary = node
-                    if primary != -1 and secondary != -1:  # add the edge and reset primary and secondary
-                        print("runs")
-                        my_graph.add_bi_edge(primary, secondary)
-                        primary.not_selected()
-                        secondary.not_selected()
-                        primary = -1
-                        secondary = -1
+                mouse_pos = pymouse.get_pos()
+                # nodes are added if the satisfy the following: within the screen, far enough from other nodes, add_node_mode is true
+                if my_graph.not_within_min(mouse_pos) and graph_screen.collidepoint(mouse_pos) and add_node_mode:
+                    new_node = Node(node_name, not_selected_color, mouse_pos, 0)
+                    my_graph.add_node(new_node)
+                    node_name += 1
+                # to add edges a node must be selected and add edge mode must be on
+                if not my_graph.not_within_min(mouse_pos) and not add_node_mode:
+                    for node in my_graph.get_graph():
+                        if primary == -1 and node.state == 1:  # if no primary node has been selected
+                            primary = node
+                        elif primary != -1 and node.state == 1 and primary != node:  # cannot make a edge with itself
+                            secondary = node
+                        if primary != -1 and secondary != -1:  # add the edge and reset primary and secondary
+                            my_graph.add_bi_edge(primary, secondary)
+                            primary.not_selected()
+                            secondary.not_selected()
+                            primary = -1
+                            secondary = -1
 
         for button in buttons:  # draw all buttons
             button.draw()
