@@ -3,7 +3,6 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.animation as mpa
 
-
 """Create networkX graph to visualise"""
 
 
@@ -85,23 +84,29 @@ def bfs(graph, start):
     return order_visited
 
 
-def dfs(graph, current):
+def dfs(graph, start):
     """
-    Runs dfs on a graph with the purpose of visualising it
+    Runs dfs on a graph with the purpose of visualising it - not recursive version
 
     Parameters
     ----------
     graph : dict
-        Dictionary with nodes as keys and values as the adjacent nodes and weights as values
-    current : int
-        Current node
+        Dictionary with nodes as keys and values as the adjacent nodes and weights
+    start : int
+        start node ()
     """
-    dfs_visited = [0 for i in range(len(graph.keys()))]
+    visited, stack = [], [start]
     order_visited = []
-    for adjacent in graph[current][0]:
-        if dfs_visited[current] == 0:
-            order_visited.append((current, adjacent))
-            dfs(adj_list, adjacent)
+    print("graph", graph)
+    while stack:
+        current = stack.pop()
+        if current in visited:
+            continue
+        visited.append(current)
+        order_visited.append(current)
+        for adjacent in graph[current]:
+            adjacent_node = adjacent[0]
+            stack.append(adjacent_node)
     return order_visited
 
 
@@ -152,19 +157,14 @@ def update_bfs(itr):
         An iterable
     """
     plt.clf()
-    # bfs
     node_col = 'blue'
-
-    targeted_nodes = []
-
     order = bfs(adj_list, 0)
 
     targeted_index = itr % len(order)
     targeted_edges = [order[targeted_index]]
-    targeted_nodes.append(order[targeted_index][1])
+    targeted_nodes = [order[targeted_index][1]]
     already_visited_nodes = [0]
     already_visited_nodes.extend(item[1] for item in order[:targeted_index])
-
     already_visited_edges = order[:targeted_index]
 
     nx.draw_networkx_edges(G, position, width=2, alpha=0.5)
@@ -179,8 +179,24 @@ def update_bfs(itr):
 
 def update_dfs(itr):
     plt.clf()
+    order = dfs(adj_list, 0)
+    node_col = "blue"
+
+    targeted_index = itr % len(order)
+    targeted_nodes = [order[targeted_index]]
+    targeted_edges = []
+    already_visited_nodes = [0]
+    already_visited_edges = []
+    already_visited_nodes.extend(item for item in order[:targeted_index])
+
+    nx.draw_networkx_edges(G, position, width=2, alpha=0.5)
+    nx.draw_networkx_edges(G, position, edgelist=targeted_edges, width=4, edge_color='red', alpha=1)
+    nx.draw_networkx_edges(G, position, edgelist=already_visited_edges, width=4, edge_color='orange', alpha=1)
+
+    nx.draw_networkx_nodes(G, position, node_size=250, node_color=node_col)
+    nx.draw_networkx_nodes(G, position, nodelist=already_visited_nodes, node_size=250, node_color='orange')
+    nx.draw_networkx_nodes(G, position, nodelist=targeted_nodes, node_size=250, node_color='red')
     plt.tight_layout()
-    pass
 
 
 def update_mst(itr):
@@ -212,6 +228,3 @@ def update_mst(itr):
     nx.draw_networkx_nodes(G, position, nodelist=already_visited_nodes, node_size=250, node_color='orange')
     nx.draw_networkx_labels(G, position)
     plt.tight_layout()
-
-
-
