@@ -68,7 +68,6 @@ def bfs(graph, start):
     order_visited : list
         list containing order of nodes visited
     """
-    print(graph.keys())
     queue = [start]
     bfs_visited = [0 for i in range(len(graph.keys()))]
     # mark as visited

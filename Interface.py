@@ -9,18 +9,14 @@ from main import *
 
 pygame.init()
 
-"""Globals
-different possible states a node/ edge could be in:
-final = 2, 
-selected = 1
-not_selected = 0
-"""
+"""Globals"""
 
 button_unselected = (255, 255, 255)
 not_selected_color = (0, 0, 255)
 selected_color = (255, 0, 0)
 selected_final_color = (0, 255, 0)
-selected_algorithm = ""
+
+selected_algorithm = ""  # used for determining which algorithm to use
 
 
 class Node:
@@ -171,29 +167,44 @@ class Button(pygame.Rect):
             screen.blit(button_text, (self.x - (width - self.width) / 2, self.y - (height - self.height) / 2))
 
     def is_clicked(self, mouse_pos):  # returns whether the button has been selected or not
+        # handles what happens if a certain button is clicked
         global add_node_mode, selected_algorithm
         if self.collidepoint(mouse_pos):
             if self.text == "Add Edge":
                 add_node_mode = 0
+
             elif self.text == "Add Node":
                 add_node_mode = 1
-            elif self.text == "Run":
+
+            elif self.text == "Selection":  # open selection menu
+                bfs_mode.shown = 1
+                dfs_mode.shown = 1
+                dij_mode.shown = 1
+                kru_mode.shown = 1
+
+            elif self.text == "Bfs":
+                selected_algorithm = self.text
+            elif self.text == "Dfs":
+                selected_algorithm = self.text
+            elif self.text == "Dijkstra":
+                selected_algorithm = self.text
+            elif self.text == "Kruskal":
+                selected_algorithm = self.text
+
+            elif self.text == "Run":  # Run button is responsible for animating the algorithms
                 positions = my_graph.get_positions()
                 nodes = [node for node in my_graph.get_nodes().keys()]
                 edges = my_graph.get_edges()
                 create_networkx_graph(positions, nodes, edges)
                 fig, ax = plt.subplots(figsize=(14, 7))
-                if selected_algorithm == "bfs":
-                    ani_mst = mpa.FuncAnimation(fig, update_bfs, interval=300, repeat=True)
-                elif selected_algorithm == "dfs":
-                    ani_mst = mpa.FuncAnimation(fig, update_dfs, interval=300, repeat=True)
+                if selected_algorithm == "":
+                    print("UH OH")
+                elif selected_algorithm == "Bfs":
+                    ani_mst = mpa.FuncAnimation(fig, update_bfs, interval=500, repeat=True)
+                elif selected_algorithm == "Dfs":
+                    ani_mst = mpa.FuncAnimation(fig, update_dfs, interval=500, repeat=True)
                 plt.show()
-            elif self.text == "Selection":
-                bfs_mode.shown = 1
-                dfs_mode.shown = 1
-                dij_mode.shown = 1
-                kru_mode.shown = 1
-                selected_algorithm = "bfs"
+
             self.colour = selected_color
             return True
         self.colour = button_unselected
