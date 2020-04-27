@@ -153,23 +153,25 @@ add_node_mode = 1  # differentiate between adding nodes or edges
 
 class Button(pygame.Rect):
 
-    def __init__(self, x, y, width, height, text, colour):
+    def __init__(self, x, y, width, height, text, colour, shown):
         self.x = x
         self.y = y
         self.height = height
         self.width = width
         self.text = text
         self.colour = colour
+        self.shown = shown
 
     def draw(self):
-        button_text = font.render(self.text, True, (0, 0, 0))
-        width = button_text.get_width()
-        height = button_text.get_height()
-        pygame.draw.rect(screen, self.colour, self)
-        screen.blit(button_text, (self.x - (width - self.width) / 2, self.y - (height - self.height) / 2))
+        if self.shown:
+            button_text = font.render(self.text, True, (0, 0, 0))
+            width = button_text.get_width()
+            height = button_text.get_height()
+            pygame.draw.rect(screen, self.colour, self)
+            screen.blit(button_text, (self.x - (width - self.width) / 2, self.y - (height - self.height) / 2))
 
     def is_clicked(self, mouse_pos):  # returns whether the button has been selected or not
-        global add_node_mode
+        global add_node_mode, selected_algorithm
         if self.collidepoint(mouse_pos):
             if self.text == "Add Edge":
                 add_node_mode = 0
@@ -179,19 +181,34 @@ class Button(pygame.Rect):
                 positions = my_graph.get_positions()
                 nodes = [node for node in my_graph.get_nodes().keys()]
                 edges = my_graph.get_edges()
-                print("nodes", nodes)
                 create_networkx_graph(positions, nodes, edges)
+                fig, ax = plt.subplots(figsize=(14, 7))
+                if selected_algorithm == "bfs":
+                    ani_mst = mpa.FuncAnimation(fig, update_bfs, interval=300, repeat=True)
+                elif selected_algorithm == "dfs":
+                    ani_mst = mpa.FuncAnimation(fig, update_dfs, interval=300, repeat=True)
                 plt.show()
+            elif self.text == "Selection":
+                bfs_mode.shown = 1
+                dfs_mode.shown = 1
+                dij_mode.shown = 1
+                kru_mode.shown = 1
+                selected_algorithm = "bfs"
             self.colour = selected_color
             return True
         self.colour = button_unselected
         return False
 
 
-add_node = Button(10, 10, 100, 50, "Add Node", button_unselected)
-add_edge = Button(10, 70, 100, 50, "Add Edge", button_unselected)
-run_visual = Button(10, 130, 100, 50, "Run", button_unselected)
-buttons = [add_node, add_edge, run_visual]  # list of all buttons
+add_node = Button(10, 10, 100, 50, "Add Node", button_unselected, 1)
+add_edge = Button(10, 70, 100, 50, "Add Edge", button_unselected, 1)
+select_algorithm = Button(10, 130, 100, 50, "Selection", button_unselected, 1)
+bfs_mode = Button(10, 190, 100, 50, "Bfs", button_unselected, 0)
+dfs_mode = Button(10, 250, 100, 50, "Dfs", button_unselected, 0)
+dij_mode = Button(10, 310, 100, 50, "Dijkstra", button_unselected, 0)
+kru_mode = Button(10, 370, 100, 50, "Kruskal", button_unselected, 0)
+run_visual = Button(10, 740, 100, 50, "Run", button_unselected, 1)
+buttons = [add_node, add_edge, select_algorithm, bfs_mode, dfs_mode, dij_mode, kru_mode, run_visual]  # list of all buttons
 # used to add edges
 primary = -1
 secondary = -1

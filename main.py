@@ -13,7 +13,7 @@ np.random.seed(7)
 # https://stackoverflow.com/questions/43646550/how-to-use-an-update-function-to-animate-a-networkx-graph-in-matplotlib-2-0-0?rq=1
 def create_networkx_graph(p, nodes, edges):
     global adj_list, G, position
-
+    print("edges:", edges)
     # generate positions of nodes
     # p = {i: (np.random.normal(0, 0.12), np.random.normal(0, 0.12)) for i in range(n)}
     # G = nx.random_geometric_graph(n, 0.172, pos=p)
@@ -187,6 +187,12 @@ def update_bfs(itr):
     plt.tight_layout()
 
 
+def update_dfs(itr):
+    plt.clf()
+    plt.tight_layout()
+    pass
+
+
 def update_mst(itr):
     """
     Meant to visualise kruskals
@@ -218,6 +224,4 @@ def update_mst(itr):
     plt.tight_layout()
 
 
-fig, ax = plt.subplots(figsize=(14, 7))
-# ani_bfs = mpa.FuncAnimation(fig, update_bfs, interval=300, repeat=True)
-ani_mst = mpa.FuncAnimation(fig, update_bfs, interval=300, repeat=True)
+
