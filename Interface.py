@@ -88,7 +88,7 @@ class Graph:
     def get_graph(self):
         return self.graph
 
-    def get_nodes(self):  # returns nodes of the graph with their positions as well as neighbours
+    def get_nodes(self):  # returns the adjacency list
         nodes = {}
         for node in self.graph:
             if node.name not in nodes.keys():
@@ -103,7 +103,7 @@ class Graph:
         for node in self.graph:
             for adjacent in self.graph[node]:
                 edges.append((node.name, adjacent[0].name, adjacent[1]))
-        return edges
+        return list(set(edges))
 
     def get_positions(self):  # returns dictionary of each nodes position
         pos = {}
@@ -203,6 +203,10 @@ class Button(pygame.Rect):
                     ani_mst = mpa.FuncAnimation(fig, update_bfs, interval=500, repeat=True)
                 elif selected_algorithm == "Dfs":
                     ani_mst = mpa.FuncAnimation(fig, update_dfs, interval=500, repeat=True)
+                elif selected_algorithm == "Dijkstra":
+                    pass
+                elif selected_algorithm == "Kruskal":
+                    ani_mst = mpa.FuncAnimation(fig, update_mst, interval=500, repeat=True)
                 plt.show()
 
             self.colour = selected_color

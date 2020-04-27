@@ -2,21 +2,16 @@ from Interface import *
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.animation as mpa
-import numpy as np
 
-# 75 looks nice
-np.random.seed(7)
+
 """Create networkX graph to visualise"""
 
 
 # animation is based off of the concept from:
 # https://stackoverflow.com/questions/43646550/how-to-use-an-update-function-to-animate-a-networkx-graph-in-matplotlib-2-0-0?rq=1
 def create_networkx_graph(p, nodes, edges):
-    global adj_list, G, position
+    global adj_list, G, position, edge_weights_labels
     print("edges:", edges)
-    # generate positions of nodes
-    # p = {i: (np.random.normal(0, 0.12), np.random.normal(0, 0.12)) for i in range(n)}
-    # G = nx.random_geometric_graph(n, 0.172, pos=p)
     G = nx.Graph()
     G.add_nodes_from(nodes)
     # set position of every node
@@ -25,7 +20,6 @@ def create_networkx_graph(p, nodes, edges):
     print("position of nodes", position)
     # add all edges
     G.add_weighted_edges_from(edges)
-
     # labels for edge weights
     edge_weights_labels = []
     # create adjacency list
@@ -102,11 +96,8 @@ def dfs(graph, current):
     current : int
         Current node
     """
-    stack = []
     dfs_visited = [0 for i in range(len(graph.keys()))]
     order_visited = []
-    current = start
-    dfs_visited[adjacent] = 1
     for adjacent in graph[current][0]:
         if dfs_visited[current] == 0:
             order_visited.append((current, adjacent))
@@ -202,7 +193,7 @@ def update_mst(itr):
     """
     plt.clf()
 
-    order = kruskals(edge_weights_labels, n)
+    order = kruskals(edge_weights_labels, len(G.nodes))
 
     targeted_index = itr % len(order)
     current_edge = [(order[targeted_index][0][0], order[targeted_index][0][1])]
