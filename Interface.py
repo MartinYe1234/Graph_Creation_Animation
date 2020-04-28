@@ -39,7 +39,7 @@ class Node:
             pydraw.circle(screen, self.colour, self.position, 10)
 
 
-class Edge:
+class Edge():
     def __init__(self, u, v, colour, state):
         self.u = u
         self.v = v
@@ -48,7 +48,7 @@ class Edge:
         x1, y1 = self.u.position
         x2, y2 = self.v.position
         self.weight = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
-        self.edge = (u, v, self.weight)
+        self.edge = (self.u, self.v, self.weight)
 
     def get_edge(self):
         return self.edge
@@ -97,6 +97,8 @@ class Graph:
 
     def del_edge(self, edge):  # remove an edge between two nodes
         edge.state = -1
+        self.graph[edge.u].remove((edge.v, edge.weight))
+        self.graph[edge.v].remove((edge.u, edge.weight))
 
     def get_graph(self):  # includes "deleted nodes"
         return self.graph
