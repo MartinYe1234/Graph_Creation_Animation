@@ -35,7 +35,8 @@ class Node:
         self.colour = not_selected_color
 
     def draw(self):
-        pydraw.circle(screen, self.colour, self.position, 10)
+        if self.state != -1:
+            pydraw.circle(screen, self.colour, self.position, 10)
 
 
 class Edge:
@@ -64,7 +65,8 @@ class Edge:
         self.colour = not_selected_color
 
     def draw(self):
-        pydraw.line(screen, self.colour, self.u.position, self.v.position, 2)
+        if self.state != -1:
+            pydraw.line(screen, self.colour, self.u.position, self.v.position, 2)
 
 
 class Graph:
@@ -87,10 +89,10 @@ class Graph:
         self.graph[u].append(v)
 
     def del_node(self, node_to_del):  # remove node from graph as well as any edges connected to the node
-        pass
+        node_to_del.state = -1  # set to -1 meaning it should be ignored
 
     def del_edge(self, edge_to_del):  # remove an edge between two nodes
-        pass
+        edge_to_del.state = -1
 
     def get_graph(self):
         return self.graph
@@ -98,11 +100,13 @@ class Graph:
     def get_nodes(self):  # returns the adjacency list
         nodes = {}
         for node in self.graph:
-            if node.name not in nodes.keys():
-                nodes[node.name] = set()
-            for neighbour in self.graph[node]:
-                nodes[node.name].add((neighbour[0].name, neighbour[1]))
+            if node.state != -1:
+                if node.name not in nodes.keys():
+                    nodes[node.name] = set()
+                for neighbour in self.graph[node]:
+                    nodes[node.name].add((neighbour[0].name, neighbour[1]))
         return nodes
+    """ update with deleteling """
 
     def get_edges(self):  # returns all edges as tuple like this : (u, v, weight)
         # (v, u, weight) and (u, v, weight) will not be treated as the same
@@ -115,7 +119,7 @@ class Graph:
     def get_positions(self):  # returns dictionary of each nodes position
         pos = {}
         for node in self.graph:
-            if node.name not in pos.keys():
+            if node.name not in pos.keys() and node.state != -1:
                 pos[node.name] = node.position
         return pos
 
@@ -131,18 +135,19 @@ class Graph:
         Returns
         -------
         not_within : boolean
-            whether or not the node about to be added is violating US airspace and needs to be shot down
+            true if mouse click was far enough away (> min_distance) from a node, false otherwise
         """
         not_within = True
         min_distance = 20
         x_mpos, y_mpos = mouse_pos[0], mouse_pos[1]
         for node in self.graph:
-            x_node, y_node = node.position
-            distance = ((x_node - x_mpos) ** 2 + (y_node - y_mpos) ** 2) ** .5
-            if distance < min_distance:
-                not_within = False
-                if not add_node_mode:
-                    node.is_selected()  # set node as being selected
+            if node.state != -1:
+                x_node, y_node = node.position
+                distance = ((x_node - x_mpos) ** 2 + (y_node - y_mpos) ** 2) ** .5
+                if distance < min_distance:
+                    not_within = False
+                    if add_node_mode != 1:
+                        node.is_selected()  # set node as being selected
         return not_within
 
     def draw(self):
@@ -268,12 +273,12 @@ def main():
                     button.is_clicked(event.pos)
 
                 mouse_pos = pymouse.get_pos()
-                # nodes are added if the satisfy the following: within the screen, far enough from other nodes, add_node_mode is true
+                # adding nodes -> must be far enough away, on screen, correct mode
                 if my_graph.not_within_min(mouse_pos) and graph_screen.collidepoint(mouse_pos) and add_node_mode == 1:
                     new_node = Node(node_name, not_selected_color, mouse_pos, 0)
                     my_graph.add_node(new_node)
                     node_name += 1
-                # to add edges a node must be selected and add edge mode must be on
+                # adding edges -> a node must be selected and correct mode
                 if not my_graph.not_within_min(mouse_pos) and not add_node_mode:
                     for node in my_graph.get_graph():
                         if primary == -1 and node.state == 1:  # if no primary node has been selected
@@ -289,6 +294,15 @@ def main():
                             secondary.not_selected()
                             primary = -1
                             secondary = -1
+                # deleting nodes -> correct mode, and node selected
+                if add_node_mode == 2 and not my_graph.not_within_min(mouse_pos):
+                    print("runs")
+                    for node in my_graph.get_graph():  # find which node was selected
+                        if node.state == 1:
+                            print("runs2")
+                            my_graph.del_node(node)
+
+
 
         for button in buttons:  # draw all buttons
             button.draw()
