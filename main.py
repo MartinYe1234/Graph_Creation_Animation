@@ -59,7 +59,7 @@ def bfs(graph, start):
     Returns
     -------
     order_visited : list
-        list containing order of nodes visited
+        list containing order of nodes visited as tuples (u, v)
     """
     queue = [start]
     bfs_visited = [0 for i in range(len(graph.keys()))]
@@ -94,6 +94,11 @@ def dfs(graph, start):
         Dictionary with nodes as keys and values as the adjacent nodes and weights
     start : int
         start node ()
+
+    Returns
+    -------
+    order_visited : list
+        list containing order of nodes visited
     """
     visited, stack = [], [start]
     order_visited = []
@@ -103,10 +108,13 @@ def dfs(graph, start):
         if current in visited:
             continue
         visited.append(current)
-        order_visited.append(current)
+
         for adjacent in graph[current]:
             adjacent_node = adjacent[0]
             stack.append(adjacent_node)
+    # fill in order_visited with edges
+    for i in range(len(visited)-1):
+        order_visited.append((visited[i], visited[i+1]))
     return order_visited
 
 
@@ -150,7 +158,8 @@ Animation created using matplotlib animation function
 
 def update_bfs(itr):
     """
-    For BFS
+    Function used to animate bfs - uses an iterable to access certain sections of a list
+
     Parameters
     ----------
     itr : int
@@ -178,16 +187,25 @@ def update_bfs(itr):
 
 
 def update_dfs(itr):
+    """
+    DFS counterpart for previous function
+
+    Parameters
+    ----------
+    itr : int
+        An iterable
+    """
     plt.clf()
     order = dfs(adj_list, 0)
     node_col = "blue"
 
     targeted_index = itr % len(order)
-    targeted_nodes = [order[targeted_index]]
-    targeted_edges = []
+    targeted_nodes = [order[targeted_index][1]]
+    targeted_edges = [order[targeted_index]]
     already_visited_nodes = [0]
+    already_visited_nodes.extend(item[1] for item in order[:targeted_index])
     already_visited_edges = []
-    already_visited_nodes.extend(item for item in order[:targeted_index])
+
 
     nx.draw_networkx_edges(G, position, width=2, alpha=0.5)
     nx.draw_networkx_edges(G, position, edgelist=targeted_edges, width=4, edge_color='red', alpha=1)
@@ -228,3 +246,6 @@ def update_mst(itr):
     nx.draw_networkx_nodes(G, position, nodelist=already_visited_nodes, node_size=250, node_color='orange')
     nx.draw_networkx_labels(G, position)
     plt.tight_layout()
+
+def update_dijkstra(itr):
+    pass

@@ -34,6 +34,9 @@ class Node:
         self.state = 0
         self.colour = not_selected_color
 
+    def draw(self):
+        pydraw.circle(screen, self.colour, self.position, 10)
+
 
 class Edge:
     def __init__(self, u, v, colour, state):
@@ -60,10 +63,14 @@ class Edge:
         self.state = 0
         self.colour = not_selected_color
 
+    def draw(self):
+        pydraw.line(screen, self.colour, self.u.position, self.v.position, 2)
+
 
 class Graph:
     def __init__(self):
         self.graph = {}
+        self.edge_list = []
 
     def add_node(self, node):
         self.graph[node] = []
@@ -73,17 +80,17 @@ class Graph:
         self.graph[edge.u].append((edge.v, edge.weight))
         self.graph[edge.u].append((edge.v, edge.weight))
 
+        self.edge_list.append(edge)
+        self.edge_list = list(set(self.edge_list))  # insure no duplicates
+
     def add_non_bi_edge(self, u, v):
         self.graph[u].append(v)
 
-    def draw(self):
-        for node in self.graph:
-            start = node.position  # begin at the node itself
-            pydraw.circle(screen, node.colour, start, 10)  # draw nodes
-            # draw edges
-            for adjacent in self.graph[node]:
-                end = adjacent[0].position
-                pydraw.line(screen, adjacent[0].colour, start, end, 2)
+    def del_node(self, node_to_del):  # remove node from graph as well as any edges connected to the node
+        pass
+
+    def del_edge(self, edge_to_del):  # remove an edge between two nodes
+        pass
 
     def get_graph(self):
         return self.graph
@@ -138,6 +145,12 @@ class Graph:
                     node.is_selected()  # set node as being selected
         return not_within
 
+    def draw(self):
+        for node in self.graph:
+            node.draw()
+        for edge in self.edge_list:
+            edge.draw()
+
 
 my_graph = Graph()
 
@@ -169,12 +182,19 @@ class Button(pygame.Rect):
     def is_clicked(self, mouse_pos):  # returns whether the button has been selected or not
         # handles what happens if a certain button is clicked
         global add_node_mode, selected_algorithm
+        # add_node_mode = 0 --> adding edges
+        # add_node_mode = 1 --> adding nodes
+        # add_node_mode = 2 --> deleting nodes
+        # add_node_mode = 3 --> deleting edges
         if self.collidepoint(mouse_pos):
             if self.text == "Add Edge":
                 add_node_mode = 0
-
             elif self.text == "Add Node":
                 add_node_mode = 1
+            elif self.text == "Del Node":
+                add_node_mode = 2
+            elif self.text == "Del Edge":
+                add_node_mode = 3
 
             elif self.text == "Selection":  # open selection menu
                 bfs_mode.shown = 1
@@ -197,6 +217,7 @@ class Button(pygame.Rect):
                 edges = my_graph.get_edges()
                 create_networkx_graph(positions, nodes, edges)
                 fig, ax = plt.subplots(figsize=(14, 7))
+
                 if selected_algorithm == "":
                     print("UH OH")
                 elif selected_algorithm == "Bfs":
@@ -204,7 +225,7 @@ class Button(pygame.Rect):
                 elif selected_algorithm == "Dfs":
                     ani_mst = mpa.FuncAnimation(fig, update_dfs, interval=500, repeat=True)
                 elif selected_algorithm == "Dijkstra":
-                    pass
+                    ani_mst = mpa.FuncAnimation(fig, update_dijkstra, interval=500, repeat=True)
                 elif selected_algorithm == "Kruskal":
                     ani_mst = mpa.FuncAnimation(fig, update_mst, interval=500, repeat=True)
                 plt.show()
@@ -217,13 +238,14 @@ class Button(pygame.Rect):
 
 add_node = Button(10, 10, 100, 50, "Add Node", button_unselected, 1)
 add_edge = Button(10, 70, 100, 50, "Add Edge", button_unselected, 1)
-select_algorithm = Button(10, 130, 100, 50, "Selection", button_unselected, 1)
-bfs_mode = Button(10, 190, 100, 50, "Bfs", button_unselected, 0)
-dfs_mode = Button(10, 250, 100, 50, "Dfs", button_unselected, 0)
-dij_mode = Button(10, 310, 100, 50, "Dijkstra", button_unselected, 0)
-kru_mode = Button(10, 370, 100, 50, "Kruskal", button_unselected, 0)
+del_node = Button(10, 130, 100, 50, "Del Node", button_unselected, 1)
+select_algorithm = Button(10, 190, 100, 50, "Selection", button_unselected, 1)
+bfs_mode = Button(10, 250, 100, 50, "Bfs", button_unselected, 0)
+dfs_mode = Button(10, 310, 100, 50, "Dfs", button_unselected, 0)
+dij_mode = Button(10, 370, 100, 50, "Dijkstra", button_unselected, 0)
+kru_mode = Button(10, 430, 100, 50, "Kruskal", button_unselected, 0)
 run_visual = Button(10, 740, 100, 50, "Run", button_unselected, 1)
-buttons = [add_node, add_edge, select_algorithm, bfs_mode, dfs_mode, dij_mode, kru_mode, run_visual]  # list of all buttons
+buttons = [add_node, add_edge, del_node, select_algorithm, bfs_mode, dfs_mode, dij_mode, kru_mode, run_visual]  # list of all buttons
 # used to add edges
 primary = -1
 secondary = -1
@@ -247,7 +269,7 @@ def main():
 
                 mouse_pos = pymouse.get_pos()
                 # nodes are added if the satisfy the following: within the screen, far enough from other nodes, add_node_mode is true
-                if my_graph.not_within_min(mouse_pos) and graph_screen.collidepoint(mouse_pos) and add_node_mode:
+                if my_graph.not_within_min(mouse_pos) and graph_screen.collidepoint(mouse_pos) and add_node_mode == 1:
                     new_node = Node(node_name, not_selected_color, mouse_pos, 0)
                     my_graph.add_node(new_node)
                     node_name += 1
