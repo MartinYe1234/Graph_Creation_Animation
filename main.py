@@ -62,9 +62,7 @@ def bfs(graph, start):
         list containing order of nodes visited as tuples (u, v)
     """
     queue = [start]
-    bfs_visited = [0 for i in range(len(graph.keys()))]
-    # mark as visited
-    bfs_visited[start] = 1
+    bfs_visited = [start]
     # store order of visited nodes
     order_visited = []
     # while there is something in the queue
@@ -74,12 +72,12 @@ def bfs(graph, start):
         for neighbour in graph[current_node]:
             adjacent_node = neighbour[0]
             # if the vertex has not been visited yet
-            if bfs_visited[adjacent_node] == 0:
+            if adjacent_node not in bfs_visited:
                 order_visited.append((current_node, adjacent_node))
                 # add adjacent (neighbour) node to queue
                 queue.append(adjacent_node)
                 # mark as visited
-                bfs_visited[adjacent_node] = 1
+                bfs_visited.append(adjacent_node)
         queue.pop(0)
     return order_visited
 

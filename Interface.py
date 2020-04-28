@@ -88,35 +88,36 @@ class Graph:
     def add_non_bi_edge(self, u, v):
         self.graph[u].append(v)
 
-    def del_node(self, node_to_del):  # remove node from graph as well as any edges connected to the node
-        node_to_del.state = -1  # set to -1 meaning it should be ignored
+    def del_node(self, node):  # remove node from graph as well as any edges connected to the node
+        node.state = -1  # set to -1 meaning it should be ignored
+        # all connecting edges must also be deleted
+        for edge in self.edge_list:
+            if edge.u == node or edge.v == node:
+                edge.state = -1
 
-    def del_edge(self, edge_to_del):  # remove an edge between two nodes
-        edge_to_del.state = -1
+    def del_edge(self, edge):  # remove an edge between two nodes
+        edge.state = -1
 
-    def get_graph(self):
+    def get_graph(self):  # includes "deleted nodes"
         return self.graph
 
-    def get_nodes(self):  # returns the adjacency list
+    def get_nodes(self):  # returns the adjacency list without "deleted nodes"
         nodes = {}
-        for node in self.graph:
-            if node.state != -1:
-                if node.name not in nodes.keys():
-                    nodes[node.name] = set()
-                for neighbour in self.graph[node]:
-                    nodes[node.name].add((neighbour[0].name, neighbour[1]))
+        for edge in self.edge_list:
+            if edge.state != -1:
+                nodes[edge.u.name] = set()
+                nodes[edge.u.name].add((edge.v.name, edge.weight))
         return nodes
-    """ update with deleteling """
 
     def get_edges(self):  # returns all edges as tuple like this : (u, v, weight)
         # (v, u, weight) and (u, v, weight) will not be treated as the same
         edges = []
-        for node in self.graph:
-            for adjacent in self.graph[node]:
-                edges.append((node.name, adjacent[0].name, adjacent[1]))
+        for edge in self.edge_list:
+            if edge.state != 1:
+                edges.append((edge.u.name, edge.v.name, edge.weight))
         return list(set(edges))
 
-    def get_positions(self):  # returns dictionary of each nodes position
+    def get_positions(self):  # returns dictionary of each nodes position without "deleted nodes"
         pos = {}
         for node in self.graph:
             if node.name not in pos.keys() and node.state != -1:
@@ -125,7 +126,7 @@ class Graph:
 
     def not_within_min(self, mouse_pos):
         """
-        Nodes can only be added if they are a certain distance away from other nodes
+        Nodes can only be added if they are a certain distance away from other nodes, deleted nodes are not counted
 
         Parameters
         ----------
@@ -244,13 +245,14 @@ class Button(pygame.Rect):
 add_node = Button(10, 10, 100, 50, "Add Node", button_unselected, 1)
 add_edge = Button(10, 70, 100, 50, "Add Edge", button_unselected, 1)
 del_node = Button(10, 130, 100, 50, "Del Node", button_unselected, 1)
-select_algorithm = Button(10, 190, 100, 50, "Selection", button_unselected, 1)
-bfs_mode = Button(10, 250, 100, 50, "Bfs", button_unselected, 0)
-dfs_mode = Button(10, 310, 100, 50, "Dfs", button_unselected, 0)
-dij_mode = Button(10, 370, 100, 50, "Dijkstra", button_unselected, 0)
-kru_mode = Button(10, 430, 100, 50, "Kruskal", button_unselected, 0)
+del_edge = Button(10, 190, 100, 50, "Del Edge", button_unselected, 1)
+select_algorithm = Button(10, 250, 100, 50, "Selection", button_unselected, 1)
+bfs_mode = Button(10, 310, 100, 50, "Bfs", button_unselected, 0)
+dfs_mode = Button(10, 370, 100, 50, "Dfs", button_unselected, 0)
+dij_mode = Button(10, 430, 100, 50, "Dijkstra", button_unselected, 0)
+kru_mode = Button(10, 490, 100, 50, "Kruskal", button_unselected, 0)
 run_visual = Button(10, 740, 100, 50, "Run", button_unselected, 1)
-buttons = [add_node, add_edge, del_node, select_algorithm, bfs_mode, dfs_mode, dij_mode, kru_mode, run_visual]  # list of all buttons
+buttons = [add_node, add_edge, del_node, del_edge, select_algorithm, bfs_mode, dfs_mode, dij_mode, kru_mode, run_visual]  # list of all buttons
 # used to add edges
 primary = -1
 secondary = -1
@@ -296,18 +298,20 @@ def main():
                             secondary = -1
                 # deleting nodes -> correct mode, and node selected
                 if add_node_mode == 2 and not my_graph.not_within_min(mouse_pos):
-                    print("runs")
                     for node in my_graph.get_graph():  # find which node was selected
                         if node.state == 1:
-                            print("runs2")
                             my_graph.del_node(node)
-
-
+                # deleting edges -> correct mode, edge selected NEEDS FIXING
+                if add_node_mode == 3 and 3:
+                    for edge in my_graph.edge_list:
+                        if edge.state == 1:
+                            my_graph.del_edge(edge)
 
         for button in buttons:  # draw all buttons
             button.draw()
         my_graph.draw()
         pydisplay.update()
+        print(my_graph.get_nodes())
 
 
 main()
