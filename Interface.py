@@ -80,7 +80,7 @@ class Graph:
     def add_bi_edge(self, edge):  # connects nodes u and v and adds a weight based on position
 
         self.graph[edge.u].append((edge.v, edge.weight))
-        self.graph[edge.u].append((edge.v, edge.weight))
+        self.graph[edge.v].append((edge.u, edge.weight))
 
         self.edge_list.append(edge)
         self.edge_list = list(set(self.edge_list))  # insure no duplicates
@@ -103,17 +103,19 @@ class Graph:
 
     def get_nodes(self):  # returns the adjacency list without "deleted nodes"
         nodes = {}
-        for edge in self.edge_list:
-            if edge.state != -1:
-                nodes[edge.u.name] = set()
-                nodes[edge.u.name].add((edge.v.name, edge.weight))
+        for node in self.graph:
+            if node.state != -1:
+                nodes[node.name] = set()
+                for adjacent in self.graph[node]:
+                    if adjacent[0].state != -1:
+                        nodes[node.name].add((adjacent[0].name, adjacent[1]))
         return nodes
 
     def get_edges(self):  # returns all edges as tuple like this : (u, v, weight)
         # (v, u, weight) and (u, v, weight) will not be treated as the same
         edges = []
         for edge in self.edge_list:
-            if edge.state != 1:
+            if edge.state != -1:
                 edges.append((edge.u.name, edge.v.name, edge.weight))
         return list(set(edges))
 
@@ -311,6 +313,7 @@ def main():
             button.draw()
         my_graph.draw()
         pydisplay.update()
+
         print(my_graph.get_nodes())
 
 
