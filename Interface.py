@@ -39,7 +39,7 @@ class Node:
             pydraw.circle(screen, self.colour, self.position, 10)
 
 
-class Edge():
+class Edge:
     def __init__(self, u, v, colour, state):
         self.u = u
         self.v = v
@@ -306,10 +306,21 @@ def main():
                         if node.state == 1:
                             my_graph.del_node(node)
                 # deleting edges -> correct mode, edge selected NEEDS FIXING
-                if add_node_mode == 3 and 3:
-                    for edge in my_graph.edge_list:
-                        if edge.state == 1:
-                            my_graph.del_edge(edge)
+                if add_node_mode == 3 and not my_graph.not_within_min(mouse_pos):
+                    for node in my_graph.get_graph():
+                        if primary == -1 and node.state == 1:  # if no primary node has been selected
+                            primary = node
+                        elif primary != -1 and node.state == 1 and primary != node:  # cannot make a edge with itself
+                            secondary = node
+                        if primary != -1 and secondary != -1:  # add the edge and reset primary and secondary
+                            for edge in my_graph.edge_list:
+                                if (edge.u == primary or edge.u == secondary) or (edge.v == primary or edge.v == secondary):
+                                    my_graph.del_edge(edge)
+
+                            primary.not_selected()
+                            secondary.not_selected()
+                            primary = -1
+                            secondary = -1
 
         for button in buttons:  # draw all buttons
             button.draw()
