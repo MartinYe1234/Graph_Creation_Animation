@@ -84,6 +84,7 @@ class Graph:
 
         self.edge_list.append(edge)
         self.edge_list = list(set(self.edge_list))  # insure no duplicates
+        print(my_graph.get_nodes())
 
     def add_non_bi_edge(self, u, v):
         self.graph[u].append(v)
@@ -97,8 +98,11 @@ class Graph:
 
     def del_edge(self, edge):  # remove an edge between two nodes
         edge.state = -1
+        print((edge.v, edge.weight) in self.graph[edge.u])
+        print((edge.u, edge.weight) in self.graph[edge.v])
         self.graph[edge.u].remove((edge.v, edge.weight))
         self.graph[edge.v].remove((edge.u, edge.weight))
+        print(my_graph.get_nodes())
 
     def get_graph(self):  # includes "deleted nodes"
         return self.graph
@@ -313,8 +317,9 @@ def main():
                         elif primary != -1 and node.state == 1 and primary != node:  # cannot make a edge with itself
                             secondary = node
                         if primary != -1 and secondary != -1:  # add the edge and reset primary and secondary
+
                             for edge in my_graph.edge_list:
-                                if (edge.u == primary or edge.u == secondary) or (edge.v == primary or edge.v == secondary):
+                                if (edge.u is primary and edge.v is secondary) or (edge.v is primary and edge.u is secondary):
                                     my_graph.del_edge(edge)
 
                             primary.not_selected()
@@ -327,7 +332,7 @@ def main():
         my_graph.draw()
         pydisplay.update()
 
-        print(my_graph.get_nodes())
+
 
 
 main()
