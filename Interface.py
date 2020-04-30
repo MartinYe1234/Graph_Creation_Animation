@@ -40,11 +40,10 @@ class Node:
 
 
 class Edge:
-    def __init__(self, u, v, colour, state):
+    def __init__(self, u, v, colour):
         self.u = u
         self.v = v
         self.colour = colour
-        self.state = state
         x1, y1 = self.u.position
         x2, y2 = self.v.position
         self.weight = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
@@ -57,16 +56,13 @@ class Edge:
         return self.u.name, self.v.name, self.weight
 
     def is_selected(self):  # sets edge as being selected if conditions are satisfied
-        self.state = 1
         self.colour = selected_color
 
     def not_selected(self):
-        self.state = 0
         self.colour = not_selected_color
 
     def draw(self):
-        if self.state != -1:
-            pydraw.line(screen, self.colour, self.u.position, self.v.position, 2)
+        pydraw.line(screen, self.colour, self.u.position, self.v.position, 2)
 
 
 class Graph:
@@ -84,7 +80,6 @@ class Graph:
 
         self.edge_list.append(edge)
         self.edge_list = list(set(self.edge_list))  # insure no duplicates
-        print(my_graph.get_nodes())
 
     def add_non_bi_edge(self, u, v):
         self.graph[u].append(v)
@@ -92,17 +87,18 @@ class Graph:
     def del_node(self, node):  # remove node from graph as well as any edges connected to the node
         node.state = -1  # set to -1 meaning it should be ignored
         # all connecting edges must also be deleted
+        edges_to_delete = []
         for edge in self.edge_list:
             if edge.u == node or edge.v == node:
-                edge.state = -1
+                edges_to_delete.append(edge)
+        while edges_to_delete:
+            self.edge_list.remove(edges_to_delete.pop())
 
     def del_edge(self, edge):  # remove an edge between two nodes
-        edge.state = -1
-        print((edge.v, edge.weight) in self.graph[edge.u])
-        print((edge.u, edge.weight) in self.graph[edge.v])
+        self.edge_list.remove(edge)
+
         self.graph[edge.u].remove((edge.v, edge.weight))
         self.graph[edge.v].remove((edge.u, edge.weight))
-        print(my_graph.get_nodes())
 
     def get_graph(self):  # includes "deleted nodes"
         return self.graph
@@ -121,8 +117,7 @@ class Graph:
         # (v, u, weight) and (u, v, weight) will not be treated as the same
         edges = []
         for edge in self.edge_list:
-            if edge.state != -1:
-                edges.append((edge.u.name, edge.v.name, edge.weight))
+            edges.append((edge.u.name, edge.v.name, edge.weight))
         return list(set(edges))
 
     def get_positions(self):  # returns dictionary of each nodes position without "deleted nodes"
@@ -296,7 +291,7 @@ def main():
                         elif primary != -1 and node.state == 1 and primary != node:  # cannot make a edge with itself
                             secondary = node
                         if primary != -1 and secondary != -1:  # add the edge and reset primary and secondary
-                            new_edge = Edge(primary, secondary, not_selected_color, 0)
+                            new_edge = Edge(primary, secondary, not_selected_color)
                             if new_edge.get_edge_data() not in my_graph.get_edges():  # no duplicate edges allowed
                                 my_graph.add_bi_edge(new_edge)
 
@@ -331,6 +326,7 @@ def main():
             button.draw()
         my_graph.draw()
         pydisplay.update()
+        print(my_graph.get_edges())
 
 
 
