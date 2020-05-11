@@ -2,6 +2,8 @@ from Interface import *
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.animation as mpa
+hpush = __import__("heapq").heappush
+hpop = __import__("heapq").heappop
 
 """Create networkX graph to visualise"""
 
@@ -33,8 +35,9 @@ def create_networkx_graph(p, nodes, edges):
         # generate weights by calculating distance between the two nodes
         x1, y1 = position[node][0], position[node][1]
         x2, y2 = position[connected_node][0], position[connected_node][1]
-        # the weight is the distance between the two connected nodes multiplied by 100 and rounded to 1 decimal place
-        weight = round((((x1 - x2) ** 2 + (y1 - y2) ** 2) ** .5) * 100, 1)
+        # The weight is the euclidean distance between the coordinates
+        # of the nodes divided by 10 and rounded to the nearest integer.
+        weight = int(round((((x1 - x2) ** 2 + (y1 - y2) ** 2) ** .5)/10, 0))
         adj_list[node].append([connected_node, weight])
         adj_list[connected_node].append([node, weight])
         # fill edge_weight_labels
@@ -152,6 +155,31 @@ def kruskals(G, N):
         order_vis.append([edges[i], added])
     return order_vis
 
+INF = int(2e9)
+
+def dijk(G, start):
+    # G is in the format {node : [[neighbor, weight]]}
+    # Flip G to be in the format {node : [[weight, neighbor]]}
+
+    order_visited = []
+
+    for node in list(G.keys()):
+        G[node] = [[edge[1], edge[0]] for edge in G[node]]
+
+    dists = dict(zip(list(G.keys()), [INF for i in range(len(G.keys()))]))
+    heap = [(0, start)]
+
+    dists[start] = 0
+
+    while heap:
+        cur = hpop(heap)[1]
+        order_visited.append(cur)
+
+        for wt, node in G[cur]:
+            if dists[cur] + wt < dists[node]:
+                dists[node] = dists[cur] + wt
+                hpush(heap, (dists[node], node))
+
 
 """
 Animation created using matplotlib animation function
@@ -230,26 +258,41 @@ def update_mst(itr):
     """
     plt.clf()
 
-    order = kruskals(edge_weights_labels, len(G.nodes))
+    order = kruskals(edge_weights_labels, len(G.nodes)) + [(-1, -1)]
 
     targeted_index = itr % len(order)
-    current_edge = [(order[targeted_index][0][0], order[targeted_index][0][1])]
-    show = order[targeted_index][1]
-    current_node = []
-    already_visited_nodes = []
-    already_visited_edges = [tuple(edge[0][:2]) for edge in order[:targeted_index] if edge[1]]
-    print(already_visited_edges)
+    if targeted_index == len(order) - 1:
 
-    # draw
-    nx.draw_networkx_edges(G, position, width=2, alpha=0.5)
-    nx.draw_networkx_edges(G, position, edgelist=already_visited_edges, width=4, edge_color='red', alpha=1)
-    nx.draw_networkx_edges(G, position, edgelist=current_edge, width=4, edge_color='orange', alpha=1)
+        already_visited_nodes = []
+        already_visited_edges = [tuple(edge[0][:2]) for edge in order[:targeted_index] if edge[1]]
+        current_edge = []
+        nx.draw_networkx_edges(G, position, width=2, alpha=0.5)
+        nx.draw_networkx_edges(G, position, edgelist=already_visited_edges, width=4, edge_color='pink', alpha=1)
 
-    nx.draw_networkx_nodes(G, position, node_size=250, node_color='blue')
-    nx.draw_networkx_nodes(G, position, nodelist=already_visited_nodes, node_size=250, node_color='orange')
-    nx.draw_networkx_labels(G, position)  # label nodes
+        nx.draw_networkx_nodes(G, position, node_size=250, node_color='pink')
+        nx.draw_networkx_nodes(G, position, nodelist=already_visited_nodes, node_size=250, node_color='purple')
+        nx.draw_networkx_labels(G, position)  # label nodes
+
+    else:
+        current_edge = [(order[targeted_index][0][0], order[targeted_index][0][1])]
+        show = order[targeted_index][1]
+        current_node = []
+        already_visited_nodes = []
+        already_visited_edges = [tuple(edge[0][:2]) for edge in order[:targeted_index] if edge[1]]
+        print(already_visited_edges)
+
+        # draw
+        nx.draw_networkx_edges(G, position, width=2, alpha=0.5)
+        nx.draw_networkx_edges(G, position, edgelist=already_visited_edges, width=4, edge_color='red', alpha=1)
+        nx.draw_networkx_edges(G, position, edgelist=current_edge, width=4, edge_color='orange', alpha=1)
+
+        nx.draw_networkx_nodes(G, position, node_size=250, node_color='blue')
+        nx.draw_networkx_nodes(G, position, nodelist=already_visited_nodes, node_size=250, node_color='orange')
+        nx.draw_networkx_labels(G, position)  # label nodes
+
     plt.tight_layout()
 
 
+
 def update_dijkstra(itr):
-    pass
+    dijk(adj_list, 0)
