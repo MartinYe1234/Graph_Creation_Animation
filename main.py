@@ -64,7 +64,7 @@ def bfs(graph, start):
     queue = [start]
     bfs_visited = [start]
     # store order of visited nodes
-    order_visited = []
+    order_visited = [(start, start)]
     # while there is something in the queue
     while queue:
         current_node = queue[0]
@@ -98,7 +98,7 @@ def dfs(graph, start):
     order_visited : list
         list containing order of nodes visited
     """
-    parent = {node:-1 for node in graph}  # key --> visited node, value --> node used to discover key
+    parent = {node: -1 for node in graph}  # key --> visited node, value --> node used to discover key
     visited, stack = [], [start]
     order_visited = []
     while stack:
@@ -185,6 +185,7 @@ def update_bfs(itr):
     nx.draw_networkx_nodes(G, position, node_size=250, node_color=node_col)
     nx.draw_networkx_nodes(G, position, nodelist=already_visited_nodes, node_size=250, node_color='orange')
     nx.draw_networkx_nodes(G, position, nodelist=targeted_nodes, node_size=250, node_color='red')
+    nx.draw_networkx_labels(G, position)  # label nodes
     plt.tight_layout()
 
 
@@ -206,8 +207,7 @@ def update_dfs(itr):
     targeted_edges = [order[targeted_index]]
     already_visited_nodes = [0]
     already_visited_nodes.extend(item[1] for item in order[:targeted_index])
-    already_visited_edges = []
-
+    already_visited_edges = order[:targeted_index]
 
     nx.draw_networkx_edges(G, position, width=2, alpha=0.5)
     nx.draw_networkx_edges(G, position, edgelist=targeted_edges, width=4, edge_color='red', alpha=1)
@@ -216,7 +216,7 @@ def update_dfs(itr):
     nx.draw_networkx_nodes(G, position, node_size=250, node_color=node_col)
     nx.draw_networkx_nodes(G, position, nodelist=already_visited_nodes, node_size=250, node_color='orange')
     nx.draw_networkx_nodes(G, position, nodelist=targeted_nodes, node_size=250, node_color='red')
-    nx.draw_networkx_labels(G, position)
+    nx.draw_networkx_labels(G, position)  # label nodes
     plt.tight_layout()
 
 
@@ -247,8 +247,9 @@ def update_mst(itr):
 
     nx.draw_networkx_nodes(G, position, node_size=250, node_color='blue')
     nx.draw_networkx_nodes(G, position, nodelist=already_visited_nodes, node_size=250, node_color='orange')
-    nx.draw_networkx_labels(G, position)
+    nx.draw_networkx_labels(G, position)  # label nodes
     plt.tight_layout()
+
 
 def update_dijkstra(itr):
     pass
