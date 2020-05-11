@@ -98,21 +98,26 @@ def dfs(graph, start):
     order_visited : list
         list containing order of nodes visited
     """
+    parent = {node:-1 for node in graph}  # key --> visited node, value --> node used to discover key
     visited, stack = [], [start]
     order_visited = []
+    depth = []
     print("graph", graph)
+    depth_count = 0
     while stack:
         current = stack.pop()
         if current in visited:
             continue
         visited.append(current)
-
         for adjacent in graph[current]:
             adjacent_node = adjacent[0]
             stack.append(adjacent_node)
+            if adjacent_node != start and parent[adjacent_node] == -1:
+                parent[adjacent_node] = current
     # fill in order_visited with edges
     for i in range(len(visited)-1):
         order_visited.append((visited[i], visited[i+1]))
+    print("parents", parent)
     return order_visited
 
 
@@ -212,6 +217,7 @@ def update_dfs(itr):
     nx.draw_networkx_nodes(G, position, node_size=250, node_color=node_col)
     nx.draw_networkx_nodes(G, position, nodelist=already_visited_nodes, node_size=250, node_color='orange')
     nx.draw_networkx_nodes(G, position, nodelist=targeted_nodes, node_size=250, node_color='red')
+    nx.draw_networkx_labels(G, position)
     plt.tight_layout()
 
 

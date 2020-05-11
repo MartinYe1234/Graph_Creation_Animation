@@ -326,9 +326,6 @@ def main():
             button.draw()
         my_graph.draw()
         pydisplay.update()
-        print(my_graph.get_edges())
-
-
 
 
 main()
