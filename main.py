@@ -101,9 +101,6 @@ def dfs(graph, start):
     parent = {node:-1 for node in graph}  # key --> visited node, value --> node used to discover key
     visited, stack = [], [start]
     order_visited = []
-    depth = []
-    print("graph", graph)
-    depth_count = 0
     while stack:
         current = stack.pop()
         if current in visited:
@@ -114,14 +111,12 @@ def dfs(graph, start):
             stack.append(adjacent_node)
             if adjacent_node != start and parent[adjacent_node] == -1:
                 parent[adjacent_node] = current
-    print("parent",parent)
     # fill in order_visited with edges
     for i in range(len(visited)):
         if i == 0:
             order_visited.append((visited[i], visited[i]))
         else:
             order_visited.append((parent[visited[i]], visited[i]))
-    print("order:", order_visited)
     return order_visited
 
 
