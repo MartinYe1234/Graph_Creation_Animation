@@ -225,18 +225,17 @@ class Button(pygame.Rect):
                 nodes = [node for node in my_graph.get_nodes().keys()]
                 edges = my_graph.get_edges()
                 create_networkx_graph(positions, nodes, edges)
-                fig, ax = plt.subplots(figsize=(14, 7))
-
+                fig, ax = plt.subplots(figsize=(7, 7))
                 if selected_algorithm == "":
                     print("UH OH")
                 elif selected_algorithm == "Bfs":
-                    ani_mst = mpa.FuncAnimation(fig, update_bfs, interval=500, repeat=True)
+                    ani_mst = mpa.FuncAnimation(fig, update_bfs, interval=1000, repeat=True)
                 elif selected_algorithm == "Dfs":
-                    ani_mst = mpa.FuncAnimation(fig, update_dfs, interval=500, repeat=True)
+                    ani_mst = mpa.FuncAnimation(fig, update_dfs, interval=1000, repeat=True)
                 elif selected_algorithm == "Dijkstra":
-                    ani_mst = mpa.FuncAnimation(fig, dijk, fargs=(adj_list, 0), interval=500, repeat=True)
+                    ani_mst = mpa.FuncAnimation(fig, update_dijk, interval=500, repeat=True)
                 elif selected_algorithm == "Kruskal":
-                    ani_mst = mpa.FuncAnimation(fig, update_mst, interval=500, repeat=True)
+                    ani_mst = mpa.FuncAnimation(fig, update_mst, interval=1000, repeat=True)
                 plt.show()
 
             self.colour = selected_color

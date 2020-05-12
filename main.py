@@ -13,8 +13,8 @@ adj_list = {}
 # https://stackoverflow.com/questions/43646550/how-to-use-an-update-function-to-animate-a-networkx-graph-in-matplotlib-2-0-0?rq=1
 def create_networkx_graph(p, nodes, edges):
     global G, position, edge_weights_labels
-    print("edges:", edges)
     G = nx.Graph()
+    print("type=", type(G))
     G.add_nodes_from(nodes)
     # set position of every node
     nx.set_node_attributes(G, p, 'pos')
@@ -37,8 +37,8 @@ def create_networkx_graph(p, nodes, edges):
         # The weight is the euclidean distance between the coordinates
         # of the nodes divided by 10 and rounded to the nearest tenth.
         weight = int(round((((x1 - x2) ** 2 + (y1 - y2) ** 2) ** .5), 1))
-        adj_list[node].append([connected_node, weight])
-        adj_list[connected_node].append([node, weight])
+        adj_list[node].append([weight, connected_node])
+        adj_list[connected_node].append([weight, node])
         # fill edge_weight_labels
         if edge not in edge_weights_labels:
             edge_weights_labels.append([edge[0], edge[1], weight])
@@ -71,7 +71,7 @@ def bfs(graph, start):
         current_node = queue[0]
         # for each adjacent node to the current node
         for neighbour in graph[current_node]:
-            adjacent_node = neighbour[0]
+            adjacent_node = neighbour[1]
             # if the vertex has not been visited yet
             if adjacent_node not in bfs_visited:
                 order_visited.append((current_node, adjacent_node))
@@ -108,7 +108,7 @@ def dfs(graph, start):
             continue
         visited.append(current)
         for adjacent in graph[current]:
-            adjacent_node = adjacent[0]
+            adjacent_node = adjacent[1]
             stack.append(adjacent_node)
             if adjacent_node != start and parent[adjacent_node] == -1:
                 parent[adjacent_node] = current
@@ -157,36 +157,54 @@ def kruskals(G, N):
 INF = int(2e9)
 
 
-def dijk(itr, G, start):
+def dijk(graph, start):
     # G is in the format {node : [[neighbor, weight]]}
     # Flip G to be in the format {node : [[weight, neighbor]]}
-
-    order_visited = []
-    print("start", start)
-    print("G:", G)
-    print("keys of g", G.keys())
-    for node in list(G.keys()):
-        G[node] = [[edge[1], edge[0]] for edge in G[node]]
-
-    dists = dict(zip(list(G.keys()), [INF for i in range(len(G.keys()))]))
+    order_visited = [start]
+    dists = dict(zip(list(graph.keys()), [INF for i in range(len(graph.keys()))]))
     heap = [(0, start)]
-
     dists[start] = 0
-    print("new G:", G)
-    print("dists:", dists)
+    animation_dists = [dists.copy()]
     while heap:
         cur = hpop(heap)[1]
         order_visited.append(cur)
-
-        for wt, node in G[cur]:
+        animation_dists.append(dists.copy())
+        for wt, node in graph[cur]:
+            order_visited.append(node)
+            animation_dists.append(dists.copy())
             if dists[cur] + wt < dists[node]:
                 dists[node] = dists[cur] + wt
                 hpush(heap, (dists[node], node))
+    return animation_dists, order_visited
 
 
 """
 Animation created using matplotlib animation function
 """
+
+
+def update_dijk(itr):
+    plt.clf()
+    node_col = 'blue'
+    order, node_order = dijk(adj_list, 0)
+    targeted_index = itr % len(order)
+    print("order=",order)
+    print("node_order = ", node_order)
+
+    current_label = order[targeted_index]
+    for node in current_label:
+        if current_label[node] == 2e9:
+            current_label[node] = "Inf"
+    nx.draw_networkx_edges(G, position, width=2, alpha=0.5)
+
+    targeted_nodes = [node_order[targeted_index]]
+    nx.draw_networkx_nodes(G, position, node_size=250, node_color=node_col)
+    nx.draw_networkx_nodes(G, position, nodelist=targeted_nodes, node_size=250, node_color='red')
+
+    nx.draw_networkx_labels(G, position)  # label nodes
+    # position of weight labels (above node)
+    weight_pos = {node: (position[node][0], position[node][1] + 6) for node in position}
+    nx.draw_networkx_labels(G, weight_pos, labels=current_label)  # label nodes
 
 
 def update_bfs(itr):
@@ -208,7 +226,6 @@ def update_bfs(itr):
     already_visited_nodes = [0]
     already_visited_nodes.extend(item[1] for item in order[:targeted_index])
     already_visited_edges = order[:targeted_index]
-
     nx.draw_networkx_edges(G, position, width=2, alpha=0.5)
     nx.draw_networkx_edges(G, position, edgelist=targeted_edges, width=4, edge_color='red', alpha=1)
     nx.draw_networkx_edges(G, position, edgelist=already_visited_edges, width=4, edge_color='orange', alpha=1)
@@ -294,7 +311,3 @@ def update_mst(itr):
         nx.draw_networkx_labels(G, position)  # label nodes
 
     plt.tight_layout()
-
-
-def update_dijkstra(itr):
-    dijk(adj_list, 0)
