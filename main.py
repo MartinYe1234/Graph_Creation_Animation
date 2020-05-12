@@ -2,16 +2,17 @@ from Interface import *
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.animation as mpa
+
 hpush = __import__("heapq").heappush
 hpop = __import__("heapq").heappop
 
 """Create networkX graph to visualise"""
 
-
+adj_list = {}
 # animation is based off of the concept from:
 # https://stackoverflow.com/questions/43646550/how-to-use-an-update-function-to-animate-a-networkx-graph-in-matplotlib-2-0-0?rq=1
 def create_networkx_graph(p, nodes, edges):
-    global adj_list, G, position, edge_weights_labels
+    global G, position, edge_weights_labels
     print("edges:", edges)
     G = nx.Graph()
     G.add_nodes_from(nodes)
@@ -23,8 +24,6 @@ def create_networkx_graph(p, nodes, edges):
     G.add_weighted_edges_from(edges)
     # labels for edge weights
     edge_weights_labels = []
-    # create adjacency list
-    adj_list = {}
 
     # fill adjacency list
     for node in nodes:
@@ -36,14 +35,13 @@ def create_networkx_graph(p, nodes, edges):
         x1, y1 = position[node][0], position[node][1]
         x2, y2 = position[connected_node][0], position[connected_node][1]
         # The weight is the euclidean distance between the coordinates
-        # of the nodes divided by 10 and rounded to the nearest integer.
-        weight = int(round((((x1 - x2) ** 2 + (y1 - y2) ** 2) ** .5)/10, 0))
+        # of the nodes divided by 10 and rounded to the nearest tenth.
+        weight = int(round((((x1 - x2) ** 2 + (y1 - y2) ** 2) ** .5), 1))
         adj_list[node].append([connected_node, weight])
         adj_list[connected_node].append([node, weight])
         # fill edge_weight_labels
         if edge not in edge_weights_labels:
             edge_weights_labels.append([edge[0], edge[1], weight])
-
     print("edge weights:", edge_weights_labels)
     print("adj list:", adj_list)
 
@@ -155,14 +153,18 @@ def kruskals(G, N):
         order_vis.append([edges[i], added])
     return order_vis
 
+
 INF = int(2e9)
 
-def dijk(G, start):
+
+def dijk(itr, G, start):
     # G is in the format {node : [[neighbor, weight]]}
     # Flip G to be in the format {node : [[weight, neighbor]]}
 
     order_visited = []
-
+    print("start", start)
+    print("G:", G)
+    print("keys of g", G.keys())
     for node in list(G.keys()):
         G[node] = [[edge[1], edge[0]] for edge in G[node]]
 
@@ -170,7 +172,8 @@ def dijk(G, start):
     heap = [(0, start)]
 
     dists[start] = 0
-
+    print("new G:", G)
+    print("dists:", dists)
     while heap:
         cur = hpop(heap)[1]
         order_visited.append(cur)
@@ -291,7 +294,6 @@ def update_mst(itr):
         nx.draw_networkx_labels(G, position)  # label nodes
 
     plt.tight_layout()
-
 
 
 def update_dijkstra(itr):

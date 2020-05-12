@@ -234,7 +234,7 @@ class Button(pygame.Rect):
                 elif selected_algorithm == "Dfs":
                     ani_mst = mpa.FuncAnimation(fig, update_dfs, interval=500, repeat=True)
                 elif selected_algorithm == "Dijkstra":
-                    ani_mst = mpa.FuncAnimation(fig, update_dijkstra, interval=500, repeat=True)
+                    ani_mst = mpa.FuncAnimation(fig, dijk, fargs=(adj_list, 0), interval=500, repeat=True)
                 elif selected_algorithm == "Kruskal":
                     ani_mst = mpa.FuncAnimation(fig, update_mst, interval=500, repeat=True)
                 plt.show()
