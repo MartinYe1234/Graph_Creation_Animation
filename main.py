@@ -298,7 +298,6 @@ def update_mst(itr, start):
         show = order[targeted_index][1]
         already_visited_nodes = []
         already_visited_edges = [tuple(edge[0][:2]) for edge in order[:targeted_index] if edge[1]]
-        print(already_visited_edges)
 
         # draw
         nx.draw_networkx_edges(G, position, width=2, alpha=0.5)

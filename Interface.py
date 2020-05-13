@@ -14,7 +14,6 @@ pygame.init()
 button_unselected = (255, 255, 255)
 not_selected_color = (0, 0, 255)
 selected_color = (255, 0, 0)
-selected_final_color = (0, 255, 0)
 
 selected_algorithm = ""  # used for determining which algorithm to use
 start = 0  # default starting node
@@ -329,10 +328,9 @@ def main():
                         if node.state == 1:
                             start = node.name
                         node.not_selected()
-                    print(start)
-
-
-
+                    for node in my_graph.get_graph():
+                        if node.name == start:
+                            node.colour = selected_color
 
         for button in buttons:  # draw all buttons
             button.draw()
