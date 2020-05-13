@@ -118,7 +118,7 @@ def dfs(graph, current, parent, visited, path):
     return path
 
 
-def update_dfs(itr):
+def update_dfs(itr, start):
     """
     DFS counterpart for previous function
 
@@ -128,7 +128,7 @@ def update_dfs(itr):
         An iterable
     """
     plt.clf()
-    path = dfs(adj_list, 0, -1, [], [])
+    path = dfs(adj_list, start, -1, [], [])
     order = []  # use path to create order
     for i in range(len(path)-1):
         new_edge = (path[i], path[i+1])
@@ -140,7 +140,7 @@ def update_dfs(itr):
     targeted_index = itr % len(order)
     targeted_nodes = [order[targeted_index][1]]
     targeted_edges = [order[targeted_index]]
-    already_visited_nodes = [0]
+    already_visited_nodes = [start]
     already_visited_nodes.extend(item[1] for item in order[:targeted_index])
     already_visited_edges = order[:targeted_index]
 
@@ -213,7 +213,7 @@ Animation created using matplotlib animation function
 """
 
 
-def update_dijk(itr):
+def update_dijk(itr, start):
     plt.clf()
     node_col = 'blue'
     order, node_order = dijk(adj_list, adj_list.keys()[0])
@@ -237,7 +237,7 @@ def update_dijk(itr):
     nx.draw_networkx_labels(G, weight_pos, labels=current_label)  # label nodes
 
 
-def update_bfs(itr):
+def update_bfs(itr, start):
     """
     Function used to animate bfs - uses an iterable to access certain sections of a list
 
@@ -248,12 +248,12 @@ def update_bfs(itr):
     """
     plt.clf()
     node_col = 'blue'
-    order = bfs(adj_list, 0)
+    order = bfs(adj_list, start)
 
     targeted_index = itr % len(order)
     targeted_edges = [order[targeted_index]]
     targeted_nodes = [order[targeted_index][1]]
-    already_visited_nodes = [0]
+    already_visited_nodes = [start]
     already_visited_nodes.extend(item[1] for item in order[:targeted_index])
     already_visited_edges = order[:targeted_index]
     nx.draw_networkx_edges(G, position, width=2, alpha=0.5)
@@ -267,7 +267,7 @@ def update_bfs(itr):
     plt.tight_layout()
 
 
-def update_mst(itr):
+def update_mst(itr, start):
     """
     Meant to visualise kruskals
     Parameters

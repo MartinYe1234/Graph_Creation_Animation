@@ -17,7 +17,7 @@ selected_color = (255, 0, 0)
 selected_final_color = (0, 255, 0)
 
 selected_algorithm = ""  # used for determining which algorithm to use
-
+start = 0  # default starting node
 
 class Node:
     def __init__(self, name, colour, position, state):
@@ -231,13 +231,13 @@ class Button(pygame.Rect):
                 if selected_algorithm == "":
                     print("UH OH")
                 elif selected_algorithm == "Bfs":
-                    ani_mst = mpa.FuncAnimation(fig, update_bfs, interval=1000, repeat=True)
+                    ani_mst = mpa.FuncAnimation(fig, update_bfs, fargs=(start, ), interval=1000, repeat=True)
                 elif selected_algorithm == "Dfs":
-                    ani_mst = mpa.FuncAnimation(fig, update_dfs, interval=1000, repeat=True)
+                    ani_mst = mpa.FuncAnimation(fig, update_dfs, fargs=(start, ), interval=1000, repeat=True)
                 elif selected_algorithm == "Dijkstra":
-                    ani_mst = mpa.FuncAnimation(fig, update_dijk, interval=1000, repeat=True)
+                    ani_mst = mpa.FuncAnimation(fig, update_dijk, fargs=(start, ), interval=1000, repeat=True)
                 elif selected_algorithm == "Kruskal":
-                    ani_mst = mpa.FuncAnimation(fig, update_mst, interval=1000, repeat=True)
+                    ani_mst = mpa.FuncAnimation(fig, update_mst, fargs=(start, ), interval=1000, repeat=True)
                 fig.tight_layout()
                 plt.show()
 
