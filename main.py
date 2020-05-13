@@ -85,6 +85,27 @@ def bfs(graph, start):
 
 
 def dfs(graph, current, parent, visited, path):
+    """
+        Runs dfs on a selected node (0 by default)
+
+        Parameters
+        ----------
+        graph : dict
+            keys are nodes, values are lists containing edges in the form of (weight, adjacent)
+        current : int
+            current node dfs is being run on
+        parent : int
+            parent node
+        visited : list
+            list meant to contain all visited nodes
+        path : list
+            list meant to store order nodes were visited in, including back tracking
+
+        Returns
+        -------
+        path : list
+            List of nodes visited in order, including back tracking
+        """
     if current in visited:
         return
     visited.append(current)
@@ -115,7 +136,6 @@ def update_dfs(itr):
         if reversed_edge not in order:
             order.append(new_edge)
     node_col = "blue"
-    print(order)
 
     targeted_index = itr % len(order)
     targeted_nodes = [order[targeted_index][1]]
@@ -137,8 +157,6 @@ def update_dfs(itr):
 
 def kruskals(G, N):
     root = list(range(N))
-    steps = []
-    added = []
     edges = edge_weights_labels
     edges.sort(key=lambda x: x[2])
 

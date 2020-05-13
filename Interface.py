@@ -213,12 +213,17 @@ class Button(pygame.Rect):
 
             elif self.text == "Bfs":
                 selected_algorithm = self.text
+                # enable prompt to select starting node
+                select_start_prompt.shown = 1
             elif self.text == "Dfs":
                 selected_algorithm = self.text
+                select_start_prompt.shown = 1
             elif self.text == "Dijkstra":
                 selected_algorithm = self.text
+                select_start_prompt.shown = 1
             elif self.text == "Kruskal":
                 selected_algorithm = self.text
+                select_start_prompt.shown = 1
 
             elif self.text == "Run":  # Run button is responsible for animating the algorithms
                 positions = my_graph.get_positions()
@@ -257,13 +262,18 @@ dfs_mode = Button(10, 370, 100, 50, "Dfs", button_unselected, 0)
 dij_mode = Button(10, 430, 100, 50, "Dijkstra", button_unselected, 0)
 kru_mode = Button(10, 490, 100, 50, "Kruskal", button_unselected, 0)
 run_visual = Button(10, 740, 100, 50, "Run", button_unselected, 1)
-buttons = [add_node, add_edge, del_node, del_edge, select_algorithm, bfs_mode, dfs_mode, dij_mode, kru_mode, run_visual]  # list of all buttons
-# used to add edges
+# kind of a button, but used as a prompt
+select_start_prompt = Button(10, 600, 500, 50, "Please select a starting node", button_unselected, 0)
+
+buttons = [add_node, add_edge, del_node, del_edge, select_algorithm, bfs_mode, dfs_mode, dij_mode, kru_mode, run_visual, select_start_prompt]  # list of all buttons
+# globals used to add edges
 primary = -1
 secondary = -1
 
+start = 0  # default starting node
 
-def main():
+
+def main():  # main function
     global primary, secondary, node_name
     running = True
     pydisplay.init()
@@ -278,7 +288,6 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:  # button click check
                 for button in buttons:  # check if a button is clicked
                     button.is_clicked(event.pos)
-
                 mouse_pos = pymouse.get_pos()
                 # adding nodes -> must be far enough away, on screen, correct mode
                 if my_graph.not_within_min(mouse_pos) and graph_screen.collidepoint(mouse_pos) and add_node_mode == 1:
@@ -296,7 +305,6 @@ def main():
                             new_edge = Edge(primary, secondary, not_selected_color)
                             if new_edge.get_edge_data() not in my_graph.get_edges():  # no duplicate edges allowed
                                 my_graph.add_bi_edge(new_edge)
-
                             primary.not_selected()
                             secondary.not_selected()
                             primary = -1
@@ -314,16 +322,13 @@ def main():
                         elif primary != -1 and node.state == 1 and primary != node:  # cannot make a edge with itself
                             secondary = node
                         if primary != -1 and secondary != -1:  # add the edge and reset primary and secondary
-
                             for edge in my_graph.edge_list:
                                 if (edge.u is primary and edge.v is secondary) or (edge.v is primary and edge.u is secondary):
                                     my_graph.del_edge(edge)
-
                             primary.not_selected()
                             secondary.not_selected()
                             primary = -1
                             secondary = -1
-
         for button in buttons:  # draw all buttons
             button.draw()
         my_graph.draw()
