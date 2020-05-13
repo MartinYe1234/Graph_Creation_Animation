@@ -19,6 +19,7 @@ selected_final_color = (0, 255, 0)
 selected_algorithm = ""  # used for determining which algorithm to use
 start = 0  # default starting node
 
+
 class Node:
     def __init__(self, name, colour, position, state):
         self.name = name
@@ -166,6 +167,11 @@ my_graph = Graph()
 screen = pydisplay.set_mode((1400, 800))  # display surface for graph creation
 graph_screen = pygame.Rect((120, 0, 1400, 800))
 font = pygame.font.Font(None, 28)  # font to use
+# add_node_mode = 0 --> adding edges
+# add_node_mode = 1 --> adding nodes
+# add_node_mode = 2 --> deleting nodes
+# add_node_mode = 3 --> deleting edges
+# add_node_mode = 4 --> select starting node
 add_node_mode = 1  # differentiate between adding nodes or edges
 
 
@@ -191,10 +197,7 @@ class Button(pygame.Rect):
     def is_clicked(self, mouse_pos):  # returns whether the button has been selected or not
         # handles what happens if a certain button is clicked
         global add_node_mode, selected_algorithm
-        # add_node_mode = 0 --> adding edges
-        # add_node_mode = 1 --> adding nodes
-        # add_node_mode = 2 --> deleting nodes
-        # add_node_mode = 3 --> deleting edges
+        algo_buttons = ["Bfs", "Dfs", "Dijkstra", "Kruskal"]
         if self.collidepoint(mouse_pos):
             if self.text == "Add Edge":
                 add_node_mode = 0
@@ -211,33 +214,30 @@ class Button(pygame.Rect):
                 dij_mode.shown = 1
                 kru_mode.shown = 1
 
-            elif self.text == "Bfs":
+            elif self.text in algo_buttons:  # if one of the algorithms is selected
                 selected_algorithm = self.text
-            elif self.text == "Dfs":
-                selected_algorithm = self.text
-            elif self.text == "Dijkstra":
-                selected_algorithm = self.text
-            elif self.text == "Kruskal":
-                selected_algorithm = self.text
+                # change add_node_mode and shown prompt
+                add_node_mode = 4
+                select_start_prompt.shown = 1
 
             elif self.text == "Run":  # Run button is responsible for animating the algorithms
                 positions = my_graph.get_positions()
                 nodes = [node for node in my_graph.get_nodes().keys()]
                 edges = my_graph.get_edges()
                 create_networkx_graph(positions, nodes, edges)
-                fig, ax = plt.subplots(figsize=(14,7))
-                plt.xlim(-5,5)
-                plt.ylim(-5,5)
+                fig, ax = plt.subplots(figsize=(14, 7))
+                plt.xlim(-5, 5)
+                plt.ylim(-5, 5)
                 if selected_algorithm == "":
                     print("UH OH")
                 elif selected_algorithm == "Bfs":
-                    ani_mst = mpa.FuncAnimation(fig, update_bfs, fargs=(start, ), interval=1000, repeat=True)
+                    ani_mst = mpa.FuncAnimation(fig, update_bfs, fargs=(start,), interval=1000, repeat=True)
                 elif selected_algorithm == "Dfs":
-                    ani_mst = mpa.FuncAnimation(fig, update_dfs, fargs=(start, ), interval=1000, repeat=True)
+                    ani_mst = mpa.FuncAnimation(fig, update_dfs, fargs=(start,), interval=1000, repeat=True)
                 elif selected_algorithm == "Dijkstra":
-                    ani_mst = mpa.FuncAnimation(fig, update_dijk, fargs=(start, ), interval=1000, repeat=True)
+                    ani_mst = mpa.FuncAnimation(fig, update_dijk, fargs=(start,), interval=1000, repeat=True)
                 elif selected_algorithm == "Kruskal":
-                    ani_mst = mpa.FuncAnimation(fig, update_mst, fargs=(start, ), interval=1000, repeat=True)
+                    ani_mst = mpa.FuncAnimation(fig, update_mst, fargs=(start,), interval=1000, repeat=True)
                 fig.tight_layout()
                 plt.show()
 
@@ -257,7 +257,9 @@ dfs_mode = Button(10, 370, 100, 50, "Dfs", button_unselected, 0)
 dij_mode = Button(10, 430, 100, 50, "Dijkstra", button_unselected, 0)
 kru_mode = Button(10, 490, 100, 50, "Kruskal", button_unselected, 0)
 run_visual = Button(10, 740, 100, 50, "Run", button_unselected, 1)
-buttons = [add_node, add_edge, del_node, del_edge, select_algorithm, bfs_mode, dfs_mode, dij_mode, kru_mode, run_visual]  # list of all buttons
+select_start_prompt = Button(500, 10, 1000, 50, "Select Start node", button_unselected, 0)
+buttons = [add_node, add_edge, del_node, del_edge, select_algorithm, bfs_mode, dfs_mode, dij_mode, kru_mode, run_visual,
+           select_start_prompt]  # list of all buttons
 # used to add edges
 primary = -1
 secondary = -1
@@ -316,7 +318,8 @@ def main():
                         if primary != -1 and secondary != -1:  # add the edge and reset primary and secondary
 
                             for edge in my_graph.edge_list:
-                                if (edge.u is primary and edge.v is secondary) or (edge.v is primary and edge.u is secondary):
+                                if (edge.u is primary and edge.v is secondary) or (
+                                        edge.v is primary and edge.u is secondary):
                                     my_graph.del_edge(edge)
 
                             primary.not_selected()
