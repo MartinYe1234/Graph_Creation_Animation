@@ -302,8 +302,8 @@ def update_dijk(itr, start):
 
     nx.draw_networkx_labels(G, position)  # label nodes
     # position of weight labels (above node)
-    weight_pos = {node: (position[node][0], position[node][1] + 12) for node in position}
-    nx.draw_networkx_labels(G, weight_pos, labels=current_label)  # label nodes
+    weight_pos = {node: (position[node][0], position[node][1] + 6) for node in position}
+    nx.draw_networkx_labels(G, weight_pos, labels=current_label, font_color='red')  # label weights
 
 
 def update_bfs(itr, start):
