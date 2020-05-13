@@ -3,6 +3,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.animation as mpa
 
+
 hpush = __import__("heapq").heappush
 hpop = __import__("heapq").heappop
 
@@ -83,42 +84,55 @@ def bfs(graph, start):
     return order_visited
 
 
-def dfs(graph, start):
+def dfs(graph, current, parent, visited, path):
+    if current in visited:
+        return
+    visited.append(current)
+    path.append(current)
+    for adj in graph[current]:
+        adjacent_node = adj[1]
+        dfs(graph, adjacent_node, current, visited, path)
+    if parent != -1:
+        path.append(parent)
+    return path
+
+
+def update_dfs(itr):
     """
-    Runs dfs on a graph with the purpose of visualising it - not recursive version
+    DFS counterpart for previous function
 
     Parameters
     ----------
-    graph : dict
-        Dictionary with nodes as keys and values as the adjacent nodes and weights
-    start : int
-        start node ()
-
-    Returns
-    -------
-    order_visited : list
-        list containing order of nodes visited
+    itr : int
+        An iterable
     """
-    parent = {node: -1 for node in graph}  # key --> visited node, value --> node used to discover key
-    visited, stack = [], [start]
-    order_visited = []
-    while stack:
-        current = stack.pop()
-        if current in visited:
-            continue
-        visited.append(current)
-        for adjacent in graph[current]:
-            adjacent_node = adjacent[1]
-            stack.append(adjacent_node)
-            if adjacent_node != start and parent[adjacent_node] == -1:
-                parent[adjacent_node] = current
-    # fill in order_visited with edges
-    for i in range(len(visited)):
-        if i == 0:
-            order_visited.append((visited[i], visited[i]))
-        else:
-            order_visited.append((parent[visited[i]], visited[i]))
-    return order_visited
+    plt.clf()
+    path = dfs(adj_list, 0, -1, [], [])
+    order = []  # use path to create order
+    for i in range(len(path)-1):
+        new_edge = (path[i], path[i+1])
+        reversed_edge = (path[i+1], path[i])
+        if reversed_edge not in order:
+            order.append(new_edge)
+    node_col = "blue"
+    print(order)
+
+    targeted_index = itr % len(order)
+    targeted_nodes = [order[targeted_index][1]]
+    targeted_edges = [order[targeted_index]]
+    already_visited_nodes = [0]
+    already_visited_nodes.extend(item[1] for item in order[:targeted_index])
+    already_visited_edges = order[:targeted_index]
+
+    nx.draw_networkx_edges(G, position, width=2, alpha=0.5)
+    nx.draw_networkx_edges(G, position, edgelist=targeted_edges, width=4, edge_color='red', alpha=1)
+    nx.draw_networkx_edges(G, position, edgelist=already_visited_edges, width=4, edge_color='orange', alpha=1)
+
+    nx.draw_networkx_nodes(G, position, node_size=250, node_color=node_col)
+    nx.draw_networkx_nodes(G, position, nodelist=already_visited_nodes, node_size=250, node_color='orange')
+    nx.draw_networkx_nodes(G, position, nodelist=targeted_nodes, node_size=250, node_color='red')
+    nx.draw_networkx_labels(G, position)  # label nodes
+    plt.tight_layout()
 
 
 def kruskals(G, N):
@@ -167,14 +181,12 @@ def dijk(graph, start):
     animation_dists = [dists.copy()]
     while heap:
         cur = hpop(heap)[1]
-        order_visited.append(cur)
-        animation_dists.append(dists.copy())
         for wt, node in graph[cur]:
-            order_visited.append(node)
-            animation_dists.append(dists.copy())
             if dists[cur] + wt < dists[node]:
                 dists[node] = dists[cur] + wt
                 hpush(heap, (dists[node], node))
+                order_visited.append(node)
+                animation_dists.append(dists.copy())
     return animation_dists, order_visited
 
 
@@ -186,7 +198,7 @@ Animation created using matplotlib animation function
 def update_dijk(itr):
     plt.clf()
     node_col = 'blue'
-    order, node_order = dijk(adj_list, 0)
+    order, node_order = dijk(adj_list, adj_list.keys()[0])
     targeted_index = itr % len(order)
     print("order=",order)
     print("node_order = ", node_order)
@@ -203,7 +215,7 @@ def update_dijk(itr):
 
     nx.draw_networkx_labels(G, position)  # label nodes
     # position of weight labels (above node)
-    weight_pos = {node: (position[node][0], position[node][1] + 6) for node in position}
+    weight_pos = {node: (position[node][0], position[node][1] + 12) for node in position}
     nx.draw_networkx_labels(G, weight_pos, labels=current_label)  # label nodes
 
 
@@ -226,37 +238,6 @@ def update_bfs(itr):
     already_visited_nodes = [0]
     already_visited_nodes.extend(item[1] for item in order[:targeted_index])
     already_visited_edges = order[:targeted_index]
-    nx.draw_networkx_edges(G, position, width=2, alpha=0.5)
-    nx.draw_networkx_edges(G, position, edgelist=targeted_edges, width=4, edge_color='red', alpha=1)
-    nx.draw_networkx_edges(G, position, edgelist=already_visited_edges, width=4, edge_color='orange', alpha=1)
-
-    nx.draw_networkx_nodes(G, position, node_size=250, node_color=node_col)
-    nx.draw_networkx_nodes(G, position, nodelist=already_visited_nodes, node_size=250, node_color='orange')
-    nx.draw_networkx_nodes(G, position, nodelist=targeted_nodes, node_size=250, node_color='red')
-    nx.draw_networkx_labels(G, position)  # label nodes
-    plt.tight_layout()
-
-
-def update_dfs(itr):
-    """
-    DFS counterpart for previous function
-
-    Parameters
-    ----------
-    itr : int
-        An iterable
-    """
-    plt.clf()
-    order = dfs(adj_list, 0)
-    node_col = "blue"
-
-    targeted_index = itr % len(order)
-    targeted_nodes = [order[targeted_index][1]]
-    targeted_edges = [order[targeted_index]]
-    already_visited_nodes = [0]
-    already_visited_nodes.extend(item[1] for item in order[:targeted_index])
-    already_visited_edges = order[:targeted_index]
-
     nx.draw_networkx_edges(G, position, width=2, alpha=0.5)
     nx.draw_networkx_edges(G, position, edgelist=targeted_edges, width=4, edge_color='red', alpha=1)
     nx.draw_networkx_edges(G, position, edgelist=already_visited_edges, width=4, edge_color='orange', alpha=1)
