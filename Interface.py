@@ -206,9 +206,6 @@ class Graph:
     add_bi_edge(edge)
         Adds an edge by updating the adjacency list and also appending it to edge_list
 
-    del_node(node) --> no longer using
-        Deletes node by setting the state of the node to -1 in the adjacency list and removes all edges with the node in it from edge_list
-
     del_edge(edge)
         Deletes the edge from edge_list and updates the adjacency list
 
