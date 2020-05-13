@@ -53,23 +53,27 @@ class Node:
     -------
     is_selected()
         changes the state and colour of node to being selected
+
     not_selected()
         changes the state and colour of node to being not selected
+
     draw()
         draws the node on pygame screen
     """
+
     def __init__(self, name, colour, position, state):
         """
         Parameters
         ----------
         name : int
-            name of the node
+            Name of the node
         colour : tuple
-            colour of node in the form of (r, g, b)
+            Triplet of integers in the form of (r, g, b)
         position : tuple
-            position of node in the form of (x, y)
+            Position of node in the form of (x, y)
         state : int
-            decides whether or not node has been selected
+            Decides whether or not node has been selected
+            True means it is selected, False means unselected
         """
         self.name = name
         self.colour = colour
@@ -78,21 +82,21 @@ class Node:
 
     def is_selected(self):
         """
-        changes the state and colour of node to being selected
+        Changes the state and colour of node to being selected
         """
         self.state = 1
         self.colour = selected_color
 
     def not_selected(self):
         """
-        changes the state and colour of node to being not selected
+        Changes the state and colour of node to being not selected
         """
         self.state = 0
         self.colour = not_selected_color
 
     def draw(self):
         """
-        draws the node on pygame screen
+        Draws the node on pygame screen
         """
         if self.state != -1:
             pydraw.circle(screen, self.colour, self.position, 10)
@@ -100,35 +104,39 @@ class Node:
 
 class Edge:
     """
-    Class to represent edges
+    Class to represent edges. Each edge is between u and v.
 
     Attributes
     ----------
     u : Node
-        Node object
+        Node object. Vertex in edge u--v.
     v: Node
-        Node object
+        Node object. Vertex in edge u--v.
     colour : tuple
-        colour of edge in the form of (r, g, b)
+        Triplet of integers in the form of (r, g, b)
     weight : float
-        Euclidean distance between positions of u and v
+        Euclidean distance between the coordinates of nodes u and v
 
     Methods
     -------
     get_edge()
         Returns the edge object
+
     get_edge_data()
         Returns the edge as a tuple with ints and floats
+
     is_selected()
-        changes colour to be selected
+        Changes colour to be selected
+
     not_selected()
-        changes colour to not be selected
+        Changes colour to not be selected
+
     draw()
-        draws the edge on the pygame screen
+        Draws the edge on the pygame screen
     """
+
     def __init__(self, u, v, colour):
         """
-
         Parameters
         ----------
         u : Node
@@ -184,31 +192,39 @@ class Graph:
     Attributes
     ----------
     graph : dict
-        adjacency list with keys as nodes and values as lists containing edges
+        Adjacency list in the form of a python dictionary with keys as nodes and values as lists
+        containing neighbors in the form (distance, node)
+
     edge_list : list
-        list of all edges in the graph
+        List of all edges in the graph as triplets (u, v, weight)
 
     Methods
     -------
     add_node(node)
         Adds a node to the graph by creating a key for it in the adjacency list
+
     add_bi_edge(edge)
         Adds an edge by updating the adjacency list and also appending it to edge_list
+
     del_node(node) --> no longer using
         Deletes node by setting the state of the node to -1 in the adjacency list and removes all edges with the node in it from edge_list
+
     del_edge(edge)
         Deletes the edge from edge_list and updates the adjacency list
+
     get_graph()
         Returns the adjacency list with node objects
-    get_nodes()
-        Return the graph in adjacency list form with ints and floats excluding nodes with state equal to -1
+
     get_edges()
         Returns edge_list but with ints and floats instead of edge objects
+
     get_positions()
         Returns a dictionary with node names as keys and positions as values
+
     draw()
         draws the graph by calling draw functions for all nodes and edges in the graph
     """
+
     def __init__(self):
         self.graph = {}
         self.edge_list = []
@@ -220,7 +236,7 @@ class Graph:
         Parameters
         ----------
         node : Node
-            the node object that needs to be added to the graph
+            The node object that needs to be added to the graph
         """
         self.graph[node] = []
 
@@ -231,31 +247,13 @@ class Graph:
         Parameters
         ----------
         edge : Edge
-            edge object
+            Edge object
         """
         self.graph[edge.u].append((edge.v, edge.weight))
         self.graph[edge.v].append((edge.u, edge.weight))
 
         self.edge_list.append(edge)
         self.edge_list = list(set(self.edge_list))  # insure no duplicates
-
-    def del_node(self, node):  # THIS IS NOT USED ANYMORE D:
-        """
-        Deletes node by setting the state of the node to -1 in the adjacency list and removes all edges with the node in it from edge_list
-
-        Parameters
-        ----------
-        node : Node
-            node object that is being removed
-        """
-        node.state = -1  # set to -1 meaning it should be ignored
-        # all connecting edges must also be deleted
-        edges_to_delete = []
-        for edge in self.edge_list:
-            if edge.u == node or edge.v == node:
-                edges_to_delete.append(edge)
-        while edges_to_delete:
-            self.edge_list.remove(edges_to_delete.pop())
 
     def del_edge(self, edge):
         """
@@ -264,7 +262,7 @@ class Graph:
         Parameters
         ----------
         edge : Edge
-            edge object that is being removed
+            Edge object that is being removed
         """
         self.edge_list.remove(edge)
         self.graph[edge.u].remove((edge.v, edge.weight))
@@ -283,7 +281,7 @@ class Graph:
         Returns
         -------
         nodes : dict
-            adjacency list with nodes as keys and lists of edges as values
+            Adjacency list in the form of a python dictionary with nodes as keys and lists of edges as values
         """
         nodes = {}
         for node in self.graph:
@@ -312,7 +310,7 @@ class Graph:
         Returns
         -------
         pos : dict
-            keys are nodes, values are positions in the form (x, y)
+            Keys are nodes, values are positions in the form (x, y)
         """
         pos = {}
         for node in self.graph:
@@ -327,12 +325,12 @@ class Graph:
         Parameters
         ----------
         mouse_pos : tuple
-            coordinates of mouse click
+            Coordinates of mouse click
 
         Returns
         -------
         not_within : boolean
-            true if mouse click was far enough away (> min_distance) from a node, false otherwise
+            True if mouse click was far enough away (> min_distance) from a node, false otherwise
         """
         not_within = True
         min_distance = 20
@@ -349,7 +347,7 @@ class Graph:
 
     def draw(self):
         """
-        draws the graph by calling draw functions for all nodes and edges in the graph
+        Draws the graph by calling draw functions for all nodes and edges in the graph
         """
         for node in self.graph:
             node.draw()
@@ -367,29 +365,39 @@ class Button(pygame.Rect):
     Attributes
     ----------
     x : int
-        x co-ordinate of top left corner of button
+        x-coordinate of top left corner of button
+
     y : int
-        y co-ordinate of top left corner of button
+        y-coordinate of top left corner of button
+
     width : int
-        width of the button
+        Width of the button
+
     height : int
-        height of the button
+        Height of the button
+
     text : str
-        string that is displayed on the button and is used to identify the button
+        String that is displayed on the button and is used to identify the button
+
     colour : tuple
-        colour of the button in the form of (r, g, b)
+        Colour of the button in the form of (r, g, b)
+
     shown : int
-        determines if the button is displayed or not
+        Determines if the button is displayed or not
 
     Methods
     -------
     draw()
-        draws the button on the pygame screen
+        Draws the button on the pygame screen
+
     is_clicked(mouse_pos)
-        determines if a button was clicked or not, handles what happens if a certain button is clicked
+        Determines if a button was clicked or not, handles what happens if a certain button is clicked
     """
+
     def __init__(self, x, y, width, height, text, colour, shown):
         """
+        Parameters
+        ----------
         x : int
             x co-ordinate of top left corner of button
         y : int
@@ -426,13 +434,13 @@ class Button(pygame.Rect):
 
     def is_clicked(self, mouse_pos):
         """
-        returns whether or not a button was clicked on, True if it was, False otherwise
+        Returns whether or not a button was clicked on, True if it was, False otherwise
         Also handles what happens if certain buttons are clicked
 
         Parameters
         ----------
         mouse_pos : tuple
-            position of mouse click in form of (x, y)
+            Position of mouse click in form of (x, y)
         """
 
         global add_node_mode, selected_algorithm
@@ -487,11 +495,10 @@ class Button(pygame.Rect):
         self.colour = button_unselected
         return False
 
+
 """Create buttons"""
 add_node = Button(10, 10, 100, 50, "Add Node", button_unselected, 1)
 add_edge = Button(10, 70, 100, 50, "Add Edge", button_unselected, 1)
-# del_node has been removed because of the problems it causes wth kruskal and dijkstra
-del_node = Button(10, 130, 100, 50, "Del Node", button_unselected, 1)
 del_edge = Button(10, 190, 100, 50, "Del Edge", button_unselected, 1)
 select_algorithm = Button(10, 250, 100, 50, "Selection", button_unselected, 1)
 bfs_mode = Button(10, 310, 100, 50, "Bfs", button_unselected, 0)
@@ -505,7 +512,10 @@ buttons = [add_node, add_edge, del_edge, select_algorithm, bfs_mode, dfs_mode, d
 
 
 def main():
-    """the main function .... what more do you want?"""
+    """
+    The main function. The driving function for Pygame,
+    and the one which pieces functions and classes together to run the program.
+    """
     global primary, secondary, node_name, start
     pydisplay.init()
     pydisplay.set_caption("Create your graph")
@@ -514,15 +524,18 @@ def main():
         for event in pygame.event.get():
             if event.type in (QUIT, KEYDOWN):  # exit screen check
                 sys.exit()
+
             if event.type == pygame.MOUSEBUTTONDOWN:  # button click check
                 for button in buttons:  # check if a button is clicked
                     button.is_clicked(event.pos)
                 mouse_pos = pymouse.get_pos()
+
                 # adding nodes -> must be far enough away, on screen, correct mode
                 if my_graph.not_within_min(mouse_pos) and graph_screen.collidepoint(mouse_pos) and add_node_mode == 1:
                     new_node = Node(node_name, not_selected_color, mouse_pos, 0)
                     my_graph.add_node(new_node)
                     node_name += 1
+
                 # adding edges -> a node must be selected and correct mode
                 if not my_graph.not_within_min(mouse_pos) and not add_node_mode:
                     for node in my_graph.get_graph():
@@ -538,11 +551,13 @@ def main():
                             secondary.not_selected()
                             primary = -1
                             secondary = -1
+
                 # deleting nodes -> correct mode, and node selected
                 if add_node_mode == 2 and not my_graph.not_within_min(mouse_pos):
                     for node in my_graph.get_graph():  # find which node was selected
                         if node.state == 1:
                             my_graph.del_node(node)
+
                 # deleting edges -> correct mode, edge selected NEEDS FIXING
                 if add_node_mode == 3 and not my_graph.not_within_min(mouse_pos):
                     for node in my_graph.get_graph():
@@ -559,6 +574,7 @@ def main():
                             secondary.not_selected()
                             primary = -1
                             secondary = -1
+
                 if add_node_mode == 4 and not my_graph.not_within_min(mouse_pos):
                     num_selected = 0  # make sure only one start node can be selected at a time
                     for node in my_graph.get_graph():
