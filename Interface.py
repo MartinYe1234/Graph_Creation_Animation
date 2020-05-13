@@ -24,6 +24,15 @@ start = 0  # default starting node
 # add_node_mode = 4 --> select starting node
 add_node_mode = 1  # differentiate between adding nodes or edges
 
+screen = pydisplay.set_mode((1400, 800))  # display surface for graph creation
+graph_screen = pygame.Rect((120, 0, 1400, 800))
+font = pygame.font.Font(None, 28)  # font to use
+
+# used to add edges
+primary = -1
+secondary = -1
+node_name = 0  # used to name nodes
+
 
 class Node:
     """
@@ -348,16 +357,54 @@ class Graph:
             edge.draw()
 
 
-my_graph = Graph()
-
-screen = pydisplay.set_mode((1400, 800))  # display surface for graph creation
-graph_screen = pygame.Rect((120, 0, 1400, 800))
-font = pygame.font.Font(None, 28)  # font to use
+my_graph = Graph()  # create our graph
 
 
 class Button(pygame.Rect):
+    """
+    Class to represent Buttons that inherits for Rect class in pygame
 
+    Attributes
+    ----------
+    x : int
+        x co-ordinate of top left corner of button
+    y : int
+        y co-ordinate of top left corner of button
+    width : int
+        width of the button
+    height : int
+        height of the button
+    text : str
+        string that is displayed on the button and is used to identify the button
+    colour : tuple
+        colour of the button in the form of (r, g, b)
+    shown : int
+        determines if the button is displayed or not
+
+    Methods
+    -------
+    draw()
+        draws the button on the pygame screen
+    is_clicked(mouse_pos)
+        determines if a button was clicked or not
+    """
     def __init__(self, x, y, width, height, text, colour, shown):
+        """
+        x : int
+            x co-ordinate of top left corner of button
+        y : int
+            y co-ordinate of top left corner of button
+        width : int
+            width of the button
+        height : int
+            height of the button
+        text : str
+            string that is displayed on the button and is used to identify the button
+        colour : tuple
+            colour of the button in the form of (r, g, b)
+        shown : int
+            determines if the button is displayed or not
+        """
         self.x = x
         self.y = y
         self.height = height
@@ -367,6 +414,9 @@ class Button(pygame.Rect):
         self.shown = shown
 
     def draw(self):
+        """
+        Draws the button on the screen if it is being shown
+        """
         if self.shown:
             button_text = font.render(self.text, True, (0, 0, 0))
             width = button_text.get_width()
@@ -374,8 +424,17 @@ class Button(pygame.Rect):
             pygame.draw.rect(screen, self.colour, self)
             screen.blit(button_text, (self.x - (width - self.width) / 2, self.y - (height - self.height) / 2))
 
-    def is_clicked(self, mouse_pos):  # returns whether the button has been selected or not
-        # handles what happens if a certain button is clicked
+    def is_clicked(self, mouse_pos):
+        """
+        returns whether or not a button was clicked on, True if it was, False otherwise
+        Also handles what happens if certain buttons are clicked
+
+        Parameters
+        ----------
+        mouse_pos : tuple
+            position of mouse click in form of (x, y)
+        """
+
         global add_node_mode, selected_algorithm
         algo_buttons = ["Bfs", "Dfs", "Dijkstra", "Kruskal"]
         if self.collidepoint(mouse_pos):
@@ -443,10 +502,6 @@ run_visual = Button(10, 740, 100, 50, "Run", button_unselected, 1)
 select_start_prompt = Button(10, 680, 200, 50, "Select Start node", button_unselected, 0)
 buttons = [add_node, add_edge, del_edge, select_algorithm, bfs_mode, dfs_mode, dij_mode, kru_mode, run_visual,
            select_start_prompt]  # list of all buttons
-# used to add edges
-primary = -1
-secondary = -1
-node_name = 0  # used to name nodes
 
 
 def main():
