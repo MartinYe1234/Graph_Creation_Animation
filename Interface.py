@@ -16,43 +16,13 @@ not_selected_color = (0, 0, 255)
 selected_color = (255, 0, 0)
 
 selected_algorithm = ""  # used for determining which algorithm to use
-
 start = 0  # default starting node
-
-# used to add edges
-primary = -1
-secondary = -1
-node_name = 0  # used to name nodes
-
 # add_node_mode = 0 --> adding edges
 # add_node_mode = 1 --> adding nodes
 # add_node_mode = 2 --> deleting nodes <-- this has been removed
 # add_node_mode = 3 --> deleting edges
 # add_node_mode = 4 --> select starting node
 add_node_mode = 1  # differentiate between adding nodes or edges
-
-my_graph = Graph()  # create our graph
-
-screen = pydisplay.set_mode((1400, 800))  # display surface for graph creation
-graph_screen = pygame.Rect((120, 0, 1400, 800))
-font = pygame.font.Font(None, 28)  # font to use
-
-
-""" Create all buttons """
-add_node = Button(10, 10, 100, 50, "Add Node", button_unselected, 1)
-add_edge = Button(10, 70, 100, 50, "Add Edge", button_unselected, 1)
-# del_node has been removed because of the problems it causes wth kruskal and dijkstra
-del_node = Button(10, 130, 100, 50, "Del Node", button_unselected, 1)
-del_edge = Button(10, 190, 100, 50, "Del Edge", button_unselected, 1)
-select_algorithm = Button(10, 250, 100, 50, "Selection", button_unselected, 1)
-bfs_mode = Button(10, 310, 100, 50, "Bfs", button_unselected, 0)
-dfs_mode = Button(10, 370, 100, 50, "Dfs", button_unselected, 0)
-dij_mode = Button(10, 430, 100, 50, "Dijkstra", button_unselected, 0)
-kru_mode = Button(10, 490, 100, 50, "Kruskal", button_unselected, 0)
-run_visual = Button(10, 740, 100, 50, "Run", button_unselected, 1)
-select_start_prompt = Button(10, 680, 200, 50, "Select Start node", button_unselected, 0)
-buttons = [add_node, add_edge, del_edge, select_algorithm, bfs_mode, dfs_mode, dij_mode, kru_mode, run_visual,
-           select_start_prompt]  # list of all buttons
 
 
 class Node:
@@ -378,6 +348,13 @@ class Graph:
             edge.draw()
 
 
+my_graph = Graph()
+
+screen = pydisplay.set_mode((1400, 800))  # display surface for graph creation
+graph_screen = pygame.Rect((120, 0, 1400, 800))
+font = pygame.font.Font(None, 28)  # font to use
+
+
 class Button(pygame.Rect):
 
     def __init__(self, x, y, width, height, text, colour, shown):
@@ -450,6 +427,26 @@ class Button(pygame.Rect):
             return True
         self.colour = button_unselected
         return False
+
+
+add_node = Button(10, 10, 100, 50, "Add Node", button_unselected, 1)
+add_edge = Button(10, 70, 100, 50, "Add Edge", button_unselected, 1)
+# del_node has been removed because of the problems it causes wth kruskal and dijkstra
+del_node = Button(10, 130, 100, 50, "Del Node", button_unselected, 1)
+del_edge = Button(10, 190, 100, 50, "Del Edge", button_unselected, 1)
+select_algorithm = Button(10, 250, 100, 50, "Selection", button_unselected, 1)
+bfs_mode = Button(10, 310, 100, 50, "Bfs", button_unselected, 0)
+dfs_mode = Button(10, 370, 100, 50, "Dfs", button_unselected, 0)
+dij_mode = Button(10, 430, 100, 50, "Dijkstra", button_unselected, 0)
+kru_mode = Button(10, 490, 100, 50, "Kruskal", button_unselected, 0)
+run_visual = Button(10, 740, 100, 50, "Run", button_unselected, 1)
+select_start_prompt = Button(10, 680, 200, 50, "Select Start node", button_unselected, 0)
+buttons = [add_node, add_edge, del_edge, select_algorithm, bfs_mode, dfs_mode, dij_mode, kru_mode, run_visual,
+           select_start_prompt]  # list of all buttons
+# used to add edges
+primary = -1
+secondary = -1
+node_name = 0  # used to name nodes
 
 
 def main():
