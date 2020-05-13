@@ -129,7 +129,7 @@ def update_dfs(itr, start):
     """
     plt.clf()
     path = dfs(adj_list, start, -1, [], [])
-    order = []  # use path to create order
+    order = [(start, start)]  # use path to create order
     for i in range(len(path)-1):
         new_edge = (path[i], path[i+1])
         reversed_edge = (path[i+1], path[i])
