@@ -280,8 +280,11 @@ def update_mst(itr, start):
     order = kruskals(edge_weights_labels, len(G.nodes)) + [(-1, -1)]
 
     targeted_index = itr % len(order)
-    if targeted_index == len(order) - 1:
 
+    edge_weight_dict = {}  # used to label edges in the graph
+    for edge in edge_weights_labels:
+        edge_weight_dict[(edge[0], edge[1])] = str(edge[2])
+    if targeted_index == len(order) - 1:
 
         already_visited_nodes = []
         already_visited_edges = [tuple(edge[0][:2]) for edge in order[:targeted_index] if edge[1]]
@@ -292,6 +295,7 @@ def update_mst(itr, start):
         nx.draw_networkx_nodes(G, position, node_size=250, node_color='pink')
         nx.draw_networkx_nodes(G, position, nodelist=already_visited_nodes, node_size=250, node_color='purple')
         nx.draw_networkx_labels(G, position)  # label nodes
+        nx.draw_networkx_edge_labels(G, position, edge_labels=edge_weight_dict)  # label edges
 
     else:
         current_edge = [(order[targeted_index][0][0], order[targeted_index][0][1])]
@@ -307,5 +311,6 @@ def update_mst(itr, start):
         nx.draw_networkx_nodes(G, position, node_size=250, node_color='blue')
         nx.draw_networkx_nodes(G, position, nodelist=already_visited_nodes, node_size=250, node_color='orange')
         nx.draw_networkx_labels(G, position)  # label nodes
+        nx.draw_networkx_edge_labels(G, position, edge_labels=edge_weight_dict)  # label edges
 
     plt.tight_layout()

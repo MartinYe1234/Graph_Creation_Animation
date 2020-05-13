@@ -17,24 +17,74 @@ selected_color = (255, 0, 0)
 
 selected_algorithm = ""  # used for determining which algorithm to use
 start = 0  # default starting node
+# add_node_mode = 0 --> adding edges
+# add_node_mode = 1 --> adding nodes
+# add_node_mode = 2 --> deleting nodes <-- this has been removed
+# add_node_mode = 3 --> deleting edges
+# add_node_mode = 4 --> select starting node
+add_node_mode = 1  # differentiate between adding nodes or edges
 
 
 class Node:
+    """
+    Class to represent nodes
+
+    Attributes
+    ----------
+    name : int
+        name of the node
+    colour : tuple
+        colour of node in the form of (r, g, b)
+    position : tuple
+        position of node in the form of (x, y)
+    state : int
+        decides whether or not node has been selected
+
+    Methods
+    -------
+    is_selected()
+        changes the state and colour of node to being selected
+    not_selected()
+        changes the state and colour of node to being not selected
+    draw()
+        draws the node on pygame screen
+    """
     def __init__(self, name, colour, position, state):
+        """
+        Parameters
+        ----------
+        name : int
+            name of the node
+        colour : tuple
+            colour of node in the form of (r, g, b)
+        position : tuple
+            position of node in the form of (x, y)
+        state : int
+            decides whether or not node has been selected
+        """
         self.name = name
         self.colour = colour
         self.position = position
         self.state = state
 
-    def is_selected(self):  # sets node as being selected if conditions are satisfied
+    def is_selected(self):
+        """
+        changes the state and colour of node to being selected
+        """
         self.state = 1
         self.colour = selected_color
 
     def not_selected(self):
+        """
+        changes the state and colour of node to being not selected
+        """
         self.state = 0
         self.colour = not_selected_color
 
     def draw(self):
+        """
+        draws the node on pygame screen
+        """
         if self.state != -1:
             pydraw.circle(screen, self.colour, self.position, 10)
 
@@ -166,12 +216,6 @@ my_graph = Graph()
 screen = pydisplay.set_mode((1400, 800))  # display surface for graph creation
 graph_screen = pygame.Rect((120, 0, 1400, 800))
 font = pygame.font.Font(None, 28)  # font to use
-# add_node_mode = 0 --> adding edges
-# add_node_mode = 1 --> adding nodes
-# add_node_mode = 2 --> deleting nodes
-# add_node_mode = 3 --> deleting edges
-# add_node_mode = 4 --> select starting node
-add_node_mode = 1  # differentiate between adding nodes or edges
 
 
 class Button(pygame.Rect):
@@ -228,18 +272,17 @@ class Button(pygame.Rect):
                 edges = my_graph.get_edges()
                 create_networkx_graph(positions, nodes, edges)
                 fig, ax = plt.subplots(figsize=(14, 7))
-                plt.xlim(-5, 5)
-                plt.ylim(-5, 5)
                 if selected_algorithm == "":
                     print("UH OH")
                 elif selected_algorithm == "Bfs":
-                    ani_mst = mpa.FuncAnimation(fig, update_bfs, fargs=(start,), interval=1000, repeat=True)
+                    ani_mst = mpa.FuncAnimation(fig, update_bfs, fargs=(start,), interval=1000)
                 elif selected_algorithm == "Dfs":
-                    ani_mst = mpa.FuncAnimation(fig, update_dfs, fargs=(start,), interval=1000, repeat=True)
+                    ani_mst = mpa.FuncAnimation(fig, update_dfs, fargs=(start,), interval=1000)
                 elif selected_algorithm == "Dijkstra":
-                    ani_mst = mpa.FuncAnimation(fig, update_dijk, fargs=(start,), interval=1000, repeat=True)
+                    ani_mst = mpa.FuncAnimation(fig, update_dijk, fargs=(start,), interval=1000)
                 elif selected_algorithm == "Kruskal":
-                    ani_mst = mpa.FuncAnimation(fig, update_mst, fargs=(start,), interval=1000, repeat=True)
+                    ani_mst = mpa.FuncAnimation(fig, update_mst, fargs=(start,), interval=1000)
+                ax.invert_yaxis()
                 fig.tight_layout()
                 plt.show()
 
@@ -251,6 +294,7 @@ class Button(pygame.Rect):
 
 add_node = Button(10, 10, 100, 50, "Add Node", button_unselected, 1)
 add_edge = Button(10, 70, 100, 50, "Add Edge", button_unselected, 1)
+# del_node has been removed because of the problems it causes wth kruskal and dijkstra
 del_node = Button(10, 130, 100, 50, "Del Node", button_unselected, 1)
 del_edge = Button(10, 190, 100, 50, "Del Edge", button_unselected, 1)
 select_algorithm = Button(10, 250, 100, 50, "Selection", button_unselected, 1)
@@ -267,12 +311,12 @@ primary = -1
 secondary = -1
 node_name = 0  # used to name nodes
 
+
 def main():
     global primary, secondary, node_name, start
-    running = True
     pydisplay.init()
     pydisplay.set_caption("Create your graph")
-    while running:
+    while True:  # will always be running
         pygame.draw.rect(screen, (192, 192, 192), graph_screen)  # draw background for graph screen
         for event in pygame.event.get():
             if event.type in (QUIT, KEYDOWN):  # exit screen check
