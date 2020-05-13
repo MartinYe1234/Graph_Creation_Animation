@@ -90,7 +90,45 @@ class Node:
 
 
 class Edge:
+    """
+    Class to represent edges
+
+    Attributes
+    ----------
+    u : Node
+        Node object
+    v: Node
+        Node object
+    colour : tuple
+        colour of edge in the form of (r, g, b)
+    weight : float
+        Euclidean distance between positions of u and v
+
+    Methods
+    -------
+    get_edge()
+        Returns the edge object
+    get_edge_data()
+        Returns the edge as a tuple with ints and floats
+    is_selected()
+        changes colour to be selected
+    not_selected()
+        changes colour to not be selected
+    draw()
+        draws the edge on the pygame screen
+    """
     def __init__(self, u, v, colour):
+        """
+
+        Parameters
+        ----------
+        u : Node
+            one of the nodes that the edge will be between
+        v : Node
+            one of the nodes that the edge will be between
+        colour : tuple
+            colour of edge in the form of (r, g, b)
+        """
         self.u = u
         self.v = v
         self.colour = colour
@@ -100,18 +138,33 @@ class Edge:
         self.edge = (self.u, self.v, self.weight)
 
     def get_edge(self):
+        """
+        Returns the edge object
+        """
         return self.edge
 
     def get_edge_data(self):
+        """
+        Returns the edge as a tuple with ints and floats
+        """
         return self.u.name, self.v.name, self.weight
 
-    def is_selected(self):  # sets edge as being selected if conditions are satisfied
+    def is_selected(self):
+        """
+        changes colour to be selected
+        """
         self.colour = selected_color
 
     def not_selected(self):
+        """
+        changes colour to not be selected
+        """
         self.colour = not_selected_color
 
     def draw(self):
+        """
+        draws the edge on the pygame screen
+        """
         pydraw.line(screen, self.colour, self.u.position, self.v.position, 2)
 
 
