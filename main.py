@@ -216,7 +216,7 @@ Animation created using matplotlib animation function
 def update_dijk(itr, start):
     plt.clf()
     node_col = 'blue'
-    order, node_order = dijk(adj_list, adj_list.keys()[0])
+    order, node_order = dijk(adj_list, start)
     targeted_index = itr % len(order)
     print("order=",order)
     print("node_order = ", node_order)
@@ -282,6 +282,7 @@ def update_mst(itr, start):
     targeted_index = itr % len(order)
     if targeted_index == len(order) - 1:
 
+
         already_visited_nodes = []
         already_visited_edges = [tuple(edge[0][:2]) for edge in order[:targeted_index] if edge[1]]
         current_edge = []
@@ -295,7 +296,6 @@ def update_mst(itr, start):
     else:
         current_edge = [(order[targeted_index][0][0], order[targeted_index][0][1])]
         show = order[targeted_index][1]
-        current_node = []
         already_visited_nodes = []
         already_visited_edges = [tuple(edge[0][:2]) for edge in order[:targeted_index] if edge[1]]
         print(already_visited_edges)
