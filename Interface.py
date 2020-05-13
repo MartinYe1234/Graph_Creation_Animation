@@ -16,13 +16,43 @@ not_selected_color = (0, 0, 255)
 selected_color = (255, 0, 0)
 
 selected_algorithm = ""  # used for determining which algorithm to use
+
 start = 0  # default starting node
+
+# used to add edges
+primary = -1
+secondary = -1
+node_name = 0  # used to name nodes
+
 # add_node_mode = 0 --> adding edges
 # add_node_mode = 1 --> adding nodes
 # add_node_mode = 2 --> deleting nodes <-- this has been removed
 # add_node_mode = 3 --> deleting edges
 # add_node_mode = 4 --> select starting node
 add_node_mode = 1  # differentiate between adding nodes or edges
+
+my_graph = Graph()  # create our graph
+
+screen = pydisplay.set_mode((1400, 800))  # display surface for graph creation
+graph_screen = pygame.Rect((120, 0, 1400, 800))
+font = pygame.font.Font(None, 28)  # font to use
+
+
+""" Create all buttons """
+add_node = Button(10, 10, 100, 50, "Add Node", button_unselected, 1)
+add_edge = Button(10, 70, 100, 50, "Add Edge", button_unselected, 1)
+# del_node has been removed because of the problems it causes wth kruskal and dijkstra
+del_node = Button(10, 130, 100, 50, "Del Node", button_unselected, 1)
+del_edge = Button(10, 190, 100, 50, "Del Edge", button_unselected, 1)
+select_algorithm = Button(10, 250, 100, 50, "Selection", button_unselected, 1)
+bfs_mode = Button(10, 310, 100, 50, "Bfs", button_unselected, 0)
+dfs_mode = Button(10, 370, 100, 50, "Dfs", button_unselected, 0)
+dij_mode = Button(10, 430, 100, 50, "Dijkstra", button_unselected, 0)
+kru_mode = Button(10, 490, 100, 50, "Kruskal", button_unselected, 0)
+run_visual = Button(10, 740, 100, 50, "Run", button_unselected, 1)
+select_start_prompt = Button(10, 680, 200, 50, "Select Start node", button_unselected, 0)
+buttons = [add_node, add_edge, del_edge, select_algorithm, bfs_mode, dfs_mode, dij_mode, kru_mode, run_visual,
+           select_start_prompt]  # list of all buttons
 
 
 class Node:
@@ -169,25 +199,76 @@ class Edge:
 
 
 class Graph:
+    """
+    Class to represent a graph
+
+    Attributes
+    ----------
+    graph : dict
+        adjacency list with keys as nodes and values as lists containing edges
+    edge_list : list
+        list of all edges in the graph
+
+    Methods
+    -------
+    add_node(node)
+        Adds a node to the graph by creating a key for it in the adjacency list
+    add_bi_edge(edge)
+        Adds an edge by updating the adjacency list and also appending it to edge_list
+    del_node(node) --> no longer using
+        Deletes node by setting the state of the node to -1 in the adjacency list and removes all edges with the node in it from edge_list
+    del_edge(edge)
+        Deletes the edge from edge_list and updates the adjacency list
+    get_graph()
+        Returns the adjacency list with node objects
+    get_nodes()
+        Return the graph in adjacency list form with ints and floats excluding nodes with state equal to -1
+    get_edges()
+        Returns edge_list but with ints and floats instead of edge objects
+    get_positions()
+        Returns a dictionary with node names as keys and positions as values
+    draw()
+        draws the graph by calling draw functions for all nodes and edges in the graph
+    """
     def __init__(self):
         self.graph = {}
         self.edge_list = []
 
     def add_node(self, node):
+        """
+        Adds a node to the graph by creating a key for it in the dictionary
+
+        Parameters
+        ----------
+        node : Node
+            the node object that needs to be added to the graph
+        """
         self.graph[node] = []
 
-    def add_bi_edge(self, edge):  # connects nodes u and v and adds a weight based on position
+    def add_bi_edge(self, edge):
+        """
+        Adds an edge by updating the adjacency list and also appending it to edge_list
 
+        Parameters
+        ----------
+        edge : Edge
+            edge object
+        """
         self.graph[edge.u].append((edge.v, edge.weight))
         self.graph[edge.v].append((edge.u, edge.weight))
 
         self.edge_list.append(edge)
         self.edge_list = list(set(self.edge_list))  # insure no duplicates
 
-    def add_non_bi_edge(self, u, v):
-        self.graph[u].append(v)
+    def del_node(self, node):  # THIS IS NOT USED ANYMORE D:
+        """
+        Deletes node by setting the state of the node to -1 in the adjacency list and removes all edges with the node in it from edge_list
 
-    def del_node(self, node):  # remove node from graph as well as any edges connected to the node
+        Parameters
+        ----------
+        node : Node
+            node object that is being removed
+        """
         node.state = -1  # set to -1 meaning it should be ignored
         # all connecting edges must also be deleted
         edges_to_delete = []
@@ -197,16 +278,34 @@ class Graph:
         while edges_to_delete:
             self.edge_list.remove(edges_to_delete.pop())
 
-    def del_edge(self, edge):  # remove an edge between two nodes
-        self.edge_list.remove(edge)
+    def del_edge(self, edge):
+        """
+        Deletes the edge from edge_list and updates the adjacency list
 
+        Parameters
+        ----------
+        edge : Edge
+            edge object that is being removed
+        """
+        self.edge_list.remove(edge)
         self.graph[edge.u].remove((edge.v, edge.weight))
         self.graph[edge.v].remove((edge.u, edge.weight))
 
-    def get_graph(self):  # includes "deleted nodes"
+    def get_graph(self):
+        """
+        Returns the adjacency list with all node objects
+        """
         return self.graph
 
-    def get_nodes(self):  # returns the adjacency list without "deleted nodes"
+    def get_nodes(self):
+        """
+        Return the graph in adjacency list form with ints and floats excluding nodes with state equal to -1
+
+        Returns
+        -------
+        nodes : dict
+            adjacency list with nodes as keys and lists of edges as values
+        """
         nodes = {}
         for node in self.graph:
             if node.state != -1:
@@ -216,14 +315,26 @@ class Graph:
                         nodes[node.name].add((adjacent[0].name, adjacent[1]))
         return nodes
 
-    def get_edges(self):  # returns all edges as tuple like this : (u, v, weight)
+    def get_edges(self):
+        """
+        Returns edge_list with ints and floats instead of edge objects
+        """
         # (v, u, weight) and (u, v, weight) will not be treated as the same
         edges = []
         for edge in self.edge_list:
             edges.append((edge.u.name, edge.v.name, edge.weight))
         return list(set(edges))
 
-    def get_positions(self):  # returns dictionary of each nodes position without "deleted nodes"
+    def get_positions(self):
+        """
+        Returns a dictionary with node names as keys and positions as values
+        Ignores nodes with state of -1
+
+        Returns
+        -------
+        pos : dict
+            keys are nodes, values are positions in the form (x, y)
+        """
         pos = {}
         for node in self.graph:
             if node.name not in pos.keys() and node.state != -1:
@@ -232,7 +343,7 @@ class Graph:
 
     def not_within_min(self, mouse_pos):
         """
-        Nodes can only be added if they are a certain distance away from other nodes, deleted nodes are not counted
+        Checks if the mouse click was within a certain distance from a node
 
         Parameters
         ----------
@@ -258,17 +369,13 @@ class Graph:
         return not_within
 
     def draw(self):
+        """
+        draws the graph by calling draw functions for all nodes and edges in the graph
+        """
         for node in self.graph:
             node.draw()
         for edge in self.edge_list:
             edge.draw()
-
-
-my_graph = Graph()
-
-screen = pydisplay.set_mode((1400, 800))  # display surface for graph creation
-graph_screen = pygame.Rect((120, 0, 1400, 800))
-font = pygame.font.Font(None, 28)  # font to use
 
 
 class Button(pygame.Rect):
@@ -343,26 +450,6 @@ class Button(pygame.Rect):
             return True
         self.colour = button_unselected
         return False
-
-
-add_node = Button(10, 10, 100, 50, "Add Node", button_unselected, 1)
-add_edge = Button(10, 70, 100, 50, "Add Edge", button_unselected, 1)
-# del_node has been removed because of the problems it causes wth kruskal and dijkstra
-del_node = Button(10, 130, 100, 50, "Del Node", button_unselected, 1)
-del_edge = Button(10, 190, 100, 50, "Del Edge", button_unselected, 1)
-select_algorithm = Button(10, 250, 100, 50, "Selection", button_unselected, 1)
-bfs_mode = Button(10, 310, 100, 50, "Bfs", button_unselected, 0)
-dfs_mode = Button(10, 370, 100, 50, "Dfs", button_unselected, 0)
-dij_mode = Button(10, 430, 100, 50, "Dijkstra", button_unselected, 0)
-kru_mode = Button(10, 490, 100, 50, "Kruskal", button_unselected, 0)
-run_visual = Button(10, 740, 100, 50, "Run", button_unselected, 1)
-select_start_prompt = Button(10, 680, 200, 50, "Select Start node", button_unselected, 0)
-buttons = [add_node, add_edge, del_edge, select_algorithm, bfs_mode, dfs_mode, dij_mode, kru_mode, run_visual,
-           select_start_prompt]  # list of all buttons
-# used to add edges
-primary = -1
-secondary = -1
-node_name = 0  # used to name nodes
 
 
 def main():
