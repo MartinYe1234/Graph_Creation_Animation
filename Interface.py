@@ -503,7 +503,7 @@ dfs_mode = Button(10, 370, 100, 50, "Dfs", button_unselected, 0)
 dij_mode = Button(10, 430, 100, 50, "Dijkstra", button_unselected, 0)
 kru_mode = Button(10, 490, 100, 50, "Kruskal", button_unselected, 0)
 run_visual = Button(10, 740, 100, 50, "Run", button_unselected, 1)
-select_start_prompt = Button(10, 680, 200, 50, "Select Start node", button_unselected, 0)
+select_start_prompt = Button(130, 740, 200, 50, "Select Start node", button_unselected, 0)
 buttons = [add_node, add_edge, del_edge, select_algorithm, bfs_mode, dfs_mode, dij_mode, kru_mode, run_visual,
            select_start_prompt]  # list of all buttons
 
