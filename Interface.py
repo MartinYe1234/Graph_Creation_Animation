@@ -386,7 +386,7 @@ class Button(pygame.Rect):
     draw()
         draws the button on the pygame screen
     is_clicked(mouse_pos)
-        determines if a button was clicked or not
+        determines if a button was clicked or not, handles what happens if a certain button is clicked
     """
     def __init__(self, x, y, width, height, text, colour, shown):
         """
@@ -437,7 +437,7 @@ class Button(pygame.Rect):
 
         global add_node_mode, selected_algorithm
         algo_buttons = ["Bfs", "Dfs", "Dijkstra", "Kruskal"]
-        if self.collidepoint(mouse_pos):
+        if self.collidepoint(mouse_pos):  # different things happen if different buttons are clicked
             if self.text == "Add Edge":
                 add_node_mode = 0
             elif self.text == "Add Node":
@@ -487,7 +487,7 @@ class Button(pygame.Rect):
         self.colour = button_unselected
         return False
 
-
+"""Create buttons"""
 add_node = Button(10, 10, 100, 50, "Add Node", button_unselected, 1)
 add_edge = Button(10, 70, 100, 50, "Add Edge", button_unselected, 1)
 # del_node has been removed because of the problems it causes wth kruskal and dijkstra
@@ -505,6 +505,7 @@ buttons = [add_node, add_edge, del_edge, select_algorithm, bfs_mode, dfs_mode, d
 
 
 def main():
+    """the main function .... what more do you want?"""
     global primary, secondary, node_name, start
     pydisplay.init()
     pydisplay.set_caption("Create your graph")
