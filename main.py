@@ -1,5 +1,6 @@
 from Interface import *
 import networkx as nx
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.animation as mpa
 from heapq import heappush as hpush, heappop as hpop
@@ -9,7 +10,6 @@ adj_list = {}
 
 # This is the distance of infinity in classic Dijkstra. Sufficiently large; about the 32-bit integer limit.
 INF = int(2e9)
-
 
 # animation is based off of the concept from:
 # https://stackoverflow.com/questions/43646550/how-to-use-an-update-function-to-animate-a-networkx-graph-in-matplotlib-2-0-0?rq=1

@@ -14,7 +14,6 @@ pygame.init()
 button_unselected = (255, 255, 255)
 not_selected_color = (0, 0, 255)
 selected_color = (255, 0, 0)
-
 selected_algorithm = ""  # used for determining which algorithm to use
 start = 0  # default starting node
 # add_node_mode = 0 --> adding edges
@@ -477,13 +476,16 @@ class Button(pygame.Rect):
                     print("UH OH")
                 elif selected_algorithm == "Bfs":
                     ani_mst = mpa.FuncAnimation(fig, update_bfs, fargs=(start,), interval=1000)
+
                 elif selected_algorithm == "Dfs":
                     ani_mst = mpa.FuncAnimation(fig, update_dfs, fargs=(start,), interval=1000)
+
                 elif selected_algorithm == "Dijkstra":
                     ani_mst = mpa.FuncAnimation(fig, update_dijk, fargs=(start,), interval=1000)
+
                 elif selected_algorithm == "Kruskal":
                     ani_mst = mpa.FuncAnimation(fig, update_mst, interval=1000)
-                ax.invert_yaxis()
+
                 fig.tight_layout()
                 plt.show()
 
