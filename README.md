@@ -13,8 +13,11 @@ DEMOSTRATION
 I will now give a demonstration of what a user would see if they were to run this program.
 First, they would be presented with this GUI which allows them to create their custom graphs.
 ![guiimage](https://i.imgur.com/vJp6bDZ.png)
+After selecting the "Add node" button, the user is now able to click on the grey portion and add nodes.
 ![nodecreation](https://i.imgur.com/CuCEsUb.png)
+A user is also able to add edges by selecting the "Add edge" button before clicking on the nodes that they want to edge to be between.
 ![edgecreation](https://i.imgur.com/RpTlad5.png)
+Finally, by clicking on the "Selection" button, the user is greeted with a number of classic Graph Theory Algorithms. They are also able to select a starting node where they want the algorithm to start on.
 ![algoselction](https://i.imgur.com/kIsWwN4.png)
 After clicking "Run", a gif will be generated, showing the algorithm being run on your custom graph. An example is shown below.
 ![gifgeneration](https://i.imgur.com/qiCHWRH.gif)
