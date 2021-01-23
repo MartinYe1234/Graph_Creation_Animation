@@ -7,7 +7,7 @@ Includes: DFS, BFS, Kruskal's and Dijkstras
 This project was meant to be a culmination of all the skills learned so far. These include various graph theory algorithms, the OOP paradigm, the use of various python libraries and designing a user friendly interface to allow for a comphrensive experience.
 
 ------------
-DEMOSTRATION
+DEMONSTRATION
 ------------
 
 I will now give a demonstration of what a user would see if they were to run this program.
