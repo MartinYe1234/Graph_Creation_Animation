@@ -1,10 +1,4 @@
-Interactive graph creation and graph theory visualisation
-
-The user interface and graph creation was done using pygame and networkx. The animation of the graphs was done using matplotlib.
-
-Includes: DFS, BFS, Kruskal's and Dijkstras
-
-This project was meant to be a culmination of all the skills learned so far. These include various graph theory algorithms, the OOP paradigm, the use of various python libraries and designing a user friendly interface to allow for a comphrensive experience.
+An interactive graph creation and graph theory visualisation application meant to help people understand how graph theory algorithms work.
 
 ------------
 DEMONSTRATION
@@ -21,3 +15,13 @@ Finally, by clicking on the "Selection" button, the user is greeted with a numbe
 ![algoselction](https://i.imgur.com/cgKW9r0.png)
 After clicking "Run", a gif will be generated, showing the algorithm being run on your custom graph. An example is shown below.
 ![gifgeneration](https://i.imgur.com/8q9Weus.gif)
+
+
+
+
+
+The user interface and graph creation was done using pygame and networkx. The animation of the graphs was done using matplotlib.
+
+Includes: DFS, BFS, Kruskal's and Dijkstras
+
+This project was meant to be a culmination of all the skills learned so far. These include various graph theory algorithms, the OOP paradigm, the use of various python libraries and designing a user friendly interface to allow for a comphrensive experience.
