@@ -20,4 +20,4 @@ A user is also able to add edges by selecting the "Add edge" button before click
 Finally, by clicking on the "Selection" button, the user is greeted with a number of classic Graph Theory Algorithms. They are also able to select a starting node where they want the algorithm to start on.
 ![algoselction](https://i.imgur.com/cgKW9r0.png)
 After clicking "Run", a gif will be generated, showing the algorithm being run on your custom graph. An example is shown below.
-![gifgeneration](https://i.imgur.com/qiCHWRH.gif)
+![gifgeneration](https://i.imgur.com/8q9Weus.gif)
